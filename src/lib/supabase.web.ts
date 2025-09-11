@@ -1,5 +1,5 @@
+// Web-safe Supabase client that doesn't cause bundling issues
 import { createClient } from '@supabase/supabase-js';
-import { Platform } from 'react-native';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -8,28 +8,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('⚠️  Supabase environment variables not configured. Please add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to your Replit secrets.');
 }
 
-// Create storage options based on platform
-const getStorageOptions = () => {
-  if (Platform.OS === 'web') {
-    return typeof window !== 'undefined' ? window.localStorage : undefined;
-  } else {
-    // For native, dynamically require AsyncStorage
-    try {
-      const AsyncStorage = require('@react-native-async-storage/async-storage').default;
-      return AsyncStorage;
-    } catch (e) {
-      console.warn('AsyncStorage not available, auth sessions will not persist');
-      return undefined;
-    }
-  }
-};
-
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
   supabaseAnonKey || 'placeholder-anon-key',
   {
     auth: {
-      storage: getStorageOptions(),
+      // Use localStorage for web instead of AsyncStorage
+      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: false,

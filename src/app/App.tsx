@@ -3,7 +3,8 @@ import { StatusBar } from 'expo-status-bar';
 import { RootNavigator } from './navigation';
 import { useAuthStore } from '@/store/authStore';
 import { supabase } from '@/lib/supabase';
-import 'react-native-gesture-handler';
+import { TamaguiProvider } from './providers/TamaguiProvider';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function App() {
   const { setUser, setLoading } = useAuthStore();
@@ -71,9 +72,11 @@ export default function App() {
   }, []);
 
   return (
-    <>
-      <StatusBar style="auto" />
-      <RootNavigator />
-    </>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <TamaguiProvider>
+        <StatusBar style="auto" />
+        <RootNavigator />
+      </TamaguiProvider>
+    </GestureHandlerRootView>
   );
 }

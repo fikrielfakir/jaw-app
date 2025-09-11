@@ -6,7 +6,7 @@ import {
   ImageBackground,
   SafeAreaView,
 } from 'react-native';
-import { Button } from '@/components/Button';
+import { Button } from '@/components/themed/Button';
 
 interface WelcomeScreenProps {
   onSelectRole: (role: 'diner' | 'owner') => void;
@@ -30,20 +30,22 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
 
             <View style={styles.buttonContainer}>
               <Button
-                title="I'm looking for restaurants"
                 onPress={() => onSelectRole('diner')}
                 variant="primary"
                 size="large"
                 style={styles.button}
-              />
+              >
+                I'm looking for restaurants
+              </Button>
               
               <Button
-                title="I'm a restaurant owner"
                 onPress={() => onSelectRole('owner')}
                 variant="outline"
                 size="large"
                 style={styles.button}
-              />
+              >
+                I'm a restaurant owner
+              </Button>
             </View>
           </View>
         </View>
