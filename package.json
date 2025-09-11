@@ -6,9 +6,10 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web --port 5000"
   },
   "dependencies": {
+    "@expo/metro-runtime": "^6.1.1",
     "@expo/vector-icons": "^15.0.2",
     "@gluestack-ui/button": "^1.0.14",
     "@gluestack-ui/icon": "^0.1.27",
