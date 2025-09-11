@@ -28,6 +28,7 @@ export default function App() {
                 userType: profile.user_type,
                 avatarUrl: profile.avatar_url,
                 createdAt: profile.created_at,
+                updatedAt: profile.updated_at || profile.created_at,
               });
             }
           });
@@ -56,6 +57,7 @@ export default function App() {
                 userType: profile.user_type,
                 avatarUrl: profile.avatar_url,
                 createdAt: profile.created_at,
+                updatedAt: profile.updated_at || profile.created_at,
               });
             }
           });
