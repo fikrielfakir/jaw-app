@@ -14,17 +14,8 @@ module.exports = function (api) {
     ],
   ];
 
-  const isWeb = api.caller(caller => caller?.name === 'metro') && process.env.EXPO_PLATFORM === 'web';
-  
-  // Only add reanimated plugin for native platforms, not web
-  if (!isWeb) {
-    try {
-      require.resolve('react-native-reanimated/plugin');
-      plugins.push(['react-native-reanimated/plugin']);
-    } catch (e) {
-      console.warn('react-native-reanimated plugin not available, skipping...');
-    }
-  }
+  // Temporarily disable reanimated plugin entirely to fix worklets dependency issue
+  // TODO: Re-enable after resolving react-native-worklets compatibility
 
   return {
     presets: [
