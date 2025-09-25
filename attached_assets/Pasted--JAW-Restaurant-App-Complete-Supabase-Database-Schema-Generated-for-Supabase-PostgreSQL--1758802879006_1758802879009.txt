@@ -1,0 +1,1278 @@
+-- JAW Restaurant App - Complete Supabase Database Schema
+-- Generated for Supabase PostgreSQL
+-- Date: September 21, 2025
+
+-- Enable necessary extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- Custom types and enums
+CREATE TYPE user_type AS ENUM ('customer', 'restaurant_owner', 'admin');
+CREATE TYPE booking_status AS ENUM ('pending', 'confirmed', 'approved', 'cancelled', 'completed');
+CREATE TYPE notification_type AS ENUM ('booking', 'review', 'promotion', 'system');
+CREATE TYPE price_range AS ENUM ('$', '$$', '$$$', '$$$$');
+CREATE TYPE subscription_status AS ENUM ('active', 'cancelled', 'expired');
+CREATE TYPE payment_method_type AS ENUM ('credit_card', 'debit_card', 'paypal', 'apple_pay');
+CREATE TYPE content_type AS ENUM ('image', 'video');
+
+-- ==========================================
+-- USERS TABLE (extends Supabase auth.users)
+-- ==========================================
+
+CREATE TABLE public.users (
+    id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    phone VARCHAR(20),
+    profile_image TEXT,
+    bio TEXT,
+    user_type user_type DEFAULT 'customer',
+    is_verified BOOLEAN DEFAULT FALSE,
+    language VARCHAR(10) DEFAULT 'en',
+    dark_theme BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ==========================================
+-- CATEGORIES TABLE
+-- ==========================================
+
+CREATE TABLE public.categories (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    description TEXT,
+    icon_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ==========================================
+-- RESTAURANTS TABLE
+-- ==========================================
+
+CREATE TABLE public.restaurants (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    owner_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    address TEXT NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    country VARCHAR(100) NOT NULL,
+    latitude DECIMAL(10, 8),
+    longitude DECIMAL(11, 8),
+    phone VARCHAR(20),
+    email VARCHAR(255),
+    website TEXT,
+    cuisine_type VARCHAR(100),
+    price_range price_range,
+    average_rating DECIMAL(2,1) DEFAULT 0.0 CHECK (average_rating >= 0 AND average_rating <= 5),
+    total_reviews INTEGER DEFAULT 0,
+    is_verified BOOLEAN DEFAULT FALSE,
+    is_active BOOLEAN DEFAULT TRUE,
+    business_hours JSONB, -- Store opening hours as JSON
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ==========================================
+-- RESTAURANT CATEGORIES (Many-to-Many)
+-- ==========================================
+
+CREATE TABLE public.restaurant_categories (
+    restaurant_id UUID REFERENCES public.restaurants(id) ON DELETE CASCADE,
+    category_id UUID REFERENCES public.categories(id) ON DELETE CASCADE,
+    PRIMARY KEY (restaurant_id, category_id)
+);
+
+-- ==========================================
+-- RESTAURANT IMAGES TABLE
+-- ==========================================
+
+CREATE TABLE public.restaurant_images (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    restaurant_id UUID REFERENCES public.restaurants(id) ON DELETE CASCADE NOT NULL,
+    image_url TEXT NOT NULL,
+    caption TEXT,
+    is_primary BOOLEAN DEFAULT FALSE,
+    display_order INTEGER DEFAULT 0,
+    uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ==========================================
+-- MENU ITEMS TABLE
+-- ==========================================
+
+CREATE TABLE public.menu_items (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    restaurant_id UUID REFERENCES public.restaurants(id) ON DELETE CASCADE NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+    category VARCHAR(100),
+    image_url TEXT,
+    is_available BOOLEAN DEFAULT TRUE,
+    display_order INTEGER DEFAULT 0,
+    allergens TEXT[], -- Array of allergen information
+    nutritional_info JSONB, -- Store nutritional data as JSON
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ==========================================
+-- BOOKINGS TABLE
+-- ==========================================
+
+CREATE TABLE public.bookings (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+    restaurant_id UUID REFERENCES public.restaurants(id) ON DELETE CASCADE NOT NULL,
+    booking_date DATE NOT NULL,
+    booking_time TIME NOT NULL,
+    party_size INTEGER NOT NULL CHECK (party_size > 0 AND party_size <= 20),
+    status booking_status DEFAULT 'pending',
+    special_requests TEXT,
+    confirmation_code VARCHAR(10),
+    cancellation_reason TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    
+    -- Ensure booking is in the future (except for testing)
+    CONSTRAINT future_booking CHECK (booking_date >= CURRENT_DATE)
+);
+
+-- ==========================================
+-- REVIEWS TABLE
+-- ==========================================
+
+CREATE TABLE public.reviews (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+    restaurant_id UUID REFERENCES public.restaurants(id) ON DELETE CASCADE NOT NULL,
+    booking_id UUID REFERENCES public.bookings(id) ON DELETE SET NULL,
+    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    title VARCHAR(255),
+    comment TEXT,
+    response TEXT, -- Restaurant owner response
+    response_date TIMESTAMP WITH TIME ZONE,
+    is_verified BOOLEAN DEFAULT FALSE, -- For verified reviews
+    helpful_count INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ==========================================
+-- REVIEW IMAGES TABLE
+-- ==========================================
+
+CREATE TABLE public.review_images (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    review_id UUID REFERENCES public.reviews(id) ON DELETE CASCADE NOT NULL,
+    image_url TEXT NOT NULL,
+    caption TEXT,
+    uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ==========================================
+-- FAVORITES TABLE
+-- ==========================================
+
+CREATE TABLE public.favorites (
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    restaurant_id UUID REFERENCES public.restaurants(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    PRIMARY KEY (user_id, restaurant_id)
+);
+
+-- ==========================================
+-- BOOKMARKS TABLE
+-- ==========================================
+
+CREATE TABLE public.bookmarks (
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    restaurant_id UUID REFERENCES public.restaurants(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    PRIMARY KEY (user_id, restaurant_id)
+);
+
+-- ==========================================
+-- NOTIFICATIONS TABLE
+-- ==========================================
+
+CREATE TABLE public.notifications (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    type notification_type NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    action_url TEXT, -- Deep link for notification actions
+    metadata JSONB, -- Additional data for the notification
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ==========================================
+-- PREMIER SUBSCRIPTIONS TABLE
+-- ==========================================
+
+CREATE TABLE public.premier_subscriptions (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+    plan_type VARCHAR(50) NOT NULL DEFAULT 'premier',
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    status subscription_status DEFAULT 'active',
+    stripe_subscription_id TEXT, -- For Stripe integration
+    auto_renew BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    
+    -- Ensure valid date range
+    CONSTRAINT valid_subscription_period CHECK (end_date > start_date)
+);
+
+-- ==========================================
+-- PAYMENT METHODS TABLE
+-- ==========================================
+
+CREATE TABLE public.payment_methods (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+    type payment_method_type NOT NULL,
+    last_four VARCHAR(4),
+    brand VARCHAR(50),
+    expiry_month INTEGER,
+    expiry_year INTEGER,
+    is_default BOOLEAN DEFAULT FALSE,
+    is_active BOOLEAN DEFAULT TRUE,
+    stripe_payment_method_id TEXT, -- For Stripe integration
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ==========================================
+-- USER STORIES TABLE
+-- ==========================================
+
+CREATE TABLE public.user_stories (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+    content_url TEXT NOT NULL,
+    content_type content_type NOT NULL,
+    caption TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    view_count INTEGER DEFAULT 0,
+    expires_at TIMESTAMP WITH TIME ZONE DEFAULT (NOW() + INTERVAL '24 hours'),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ==========================================
+-- STORY VIEWS TABLE
+-- ==========================================
+
+CREATE TABLE public.story_views (
+    story_id UUID REFERENCES public.user_stories(id) ON DELETE CASCADE,
+    viewer_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    viewed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    PRIMARY KEY (story_id, viewer_id)
+);
+
+-- ==========================================
+-- BUSINESS ANALYTICS TABLE
+-- ==========================================
+
+CREATE TABLE public.business_analytics (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    restaurant_id UUID REFERENCES public.restaurants(id) ON DELETE CASCADE NOT NULL,
+    date DATE NOT NULL,
+    views INTEGER DEFAULT 0,
+    bookings INTEGER DEFAULT 0,
+    reviews INTEGER DEFAULT 0,
+    favorites INTEGER DEFAULT 0,
+    impressions INTEGER DEFAULT 0,
+    clicks INTEGER DEFAULT 0,
+    conversion_rate DECIMAL(5,2) DEFAULT 0.0,
+    revenue DECIMAL(12,2) DEFAULT 0.0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    
+    UNIQUE(restaurant_id, date)
+);
+
+-- ==========================================
+-- CONTACT MESSAGES TABLE
+-- ==========================================
+
+CREATE TABLE public.contact_messages (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    subject VARCHAR(255),
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    admin_response TEXT,
+    responded_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ==========================================
+-- FAQ TABLE
+-- ==========================================
+
+CREATE TABLE public.faqs (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    question TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    category VARCHAR(100),
+    is_active BOOLEAN DEFAULT TRUE,
+    display_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ==========================================
+-- PARTNER APPLICATIONS TABLE
+-- ==========================================
+
+CREATE TABLE public.partner_applications (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    business_name VARCHAR(255) NOT NULL,
+    business_address TEXT NOT NULL,
+    contact_number VARCHAR(20) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    business_type VARCHAR(100),
+    additional_info TEXT,
+    status VARCHAR(50) DEFAULT 'pending',
+    reviewed_by UUID REFERENCES public.users(id) ON DELETE SET NULL,
+    reviewed_at TIMESTAMP WITH TIME ZONE,
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ==========================================
+-- SYSTEM SETTINGS TABLE
+-- ==========================================
+
+CREATE TABLE public.system_settings (
+    key VARCHAR(100) PRIMARY KEY,
+    value TEXT NOT NULL,
+    description TEXT,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_by UUID REFERENCES public.users(id) ON DELETE SET NULL
+);
+
+-- ==========================================
+-- INDEXES FOR PERFORMANCE
+-- ==========================================
+
+-- Users indexes
+CREATE INDEX idx_users_user_type ON public.users(user_type);
+CREATE INDEX idx_users_is_verified ON public.users(is_verified);
+
+-- Restaurants indexes
+CREATE INDEX idx_restaurants_owner_id ON public.restaurants(owner_id);
+CREATE INDEX idx_restaurants_city ON public.restaurants(city);
+CREATE INDEX idx_restaurants_cuisine_type ON public.restaurants(cuisine_type);
+CREATE INDEX idx_restaurants_price_range ON public.restaurants(price_range);
+CREATE INDEX idx_restaurants_average_rating ON public.restaurants(average_rating);
+CREATE INDEX idx_restaurants_is_active ON public.restaurants(is_active, is_verified);
+CREATE INDEX idx_restaurants_location ON public.restaurants(latitude, longitude);
+
+-- Bookings indexes
+CREATE INDEX idx_bookings_user_id ON public.bookings(user_id);
+CREATE INDEX idx_bookings_restaurant_id ON public.bookings(restaurant_id);
+CREATE INDEX idx_bookings_date ON public.bookings(booking_date, booking_time);
+CREATE INDEX idx_bookings_status ON public.bookings(status);
+CREATE INDEX idx_bookings_created_at ON public.bookings(created_at);
+
+-- Reviews indexes
+CREATE INDEX idx_reviews_user_id ON public.reviews(user_id);
+CREATE INDEX idx_reviews_restaurant_id ON public.reviews(restaurant_id);
+CREATE INDEX idx_reviews_rating ON public.reviews(rating);
+CREATE INDEX idx_reviews_created_at ON public.reviews(created_at);
+
+-- Menu items indexes
+CREATE INDEX idx_menu_items_restaurant_id ON public.menu_items(restaurant_id);
+CREATE INDEX idx_menu_items_category ON public.menu_items(category);
+CREATE INDEX idx_menu_items_is_available ON public.menu_items(is_available);
+
+-- Notifications indexes
+CREATE INDEX idx_notifications_user_id ON public.notifications(user_id);
+CREATE INDEX idx_notifications_is_read ON public.notifications(is_read);
+CREATE INDEX idx_notifications_created_at ON public.notifications(created_at);
+
+-- Analytics indexes
+CREATE INDEX idx_business_analytics_restaurant_date ON public.business_analytics(restaurant_id, date);
+CREATE INDEX idx_business_analytics_date ON public.business_analytics(date);
+
+-- ==========================================
+-- FUNCTIONS AND TRIGGERS
+-- ==========================================
+
+-- Function to update updated_at timestamp
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Apply updated_at triggers
+CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON public.users
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_restaurants_updated_at BEFORE UPDATE ON public.restaurants
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_bookings_updated_at BEFORE UPDATE ON public.bookings
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_reviews_updated_at BEFORE UPDATE ON public.reviews
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_menu_items_updated_at BEFORE UPDATE ON public.menu_items
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_premier_subscriptions_updated_at BEFORE UPDATE ON public.premier_subscriptions
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Function to generate booking confirmation code
+CREATE OR REPLACE FUNCTION generate_booking_confirmation_code()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.confirmation_code IS NULL THEN
+        NEW.confirmation_code := UPPER(SUBSTRING(MD5(RANDOM()::TEXT) FROM 1 FOR 8));
+    END IF;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER generate_booking_code BEFORE INSERT ON public.bookings
+    FOR EACH ROW EXECUTE FUNCTION generate_booking_confirmation_code();
+
+-- Function to update restaurant rating when review is added/updated/deleted
+CREATE OR REPLACE FUNCTION update_restaurant_rating()
+RETURNS TRIGGER AS $$
+DECLARE
+    restaurant_id_val UUID;
+    avg_rating DECIMAL(2,1);
+    review_count INTEGER;
+BEGIN
+    -- Get restaurant_id from the affected review
+    IF TG_OP = 'DELETE' THEN
+        restaurant_id_val := OLD.restaurant_id;
+    ELSE
+        restaurant_id_val := NEW.restaurant_id;
+    END IF;
+    
+    -- Calculate new average rating and count
+    SELECT 
+        COALESCE(ROUND(AVG(rating), 1), 0.0),
+        COUNT(*)
+    INTO avg_rating, review_count
+    FROM public.reviews 
+    WHERE restaurant_id = restaurant_id_val;
+    
+    -- Update restaurant
+    UPDATE public.restaurants 
+    SET 
+        average_rating = avg_rating,
+        total_reviews = review_count,
+        updated_at = NOW()
+    WHERE id = restaurant_id_val;
+    
+    RETURN COALESCE(NEW, OLD);
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_restaurant_rating_on_review
+    AFTER INSERT OR UPDATE OR DELETE ON public.reviews
+    FOR EACH ROW EXECUTE FUNCTION update_restaurant_rating();
+
+-- Function to update analytics when certain actions happen
+CREATE OR REPLACE FUNCTION update_daily_analytics()
+RETURNS TRIGGER AS $$
+DECLARE
+    today_date DATE := CURRENT_DATE;
+    restaurant_id_val UUID;
+BEGIN
+    IF TG_OP = 'DELETE' THEN
+        restaurant_id_val := OLD.restaurant_id;
+    ELSE
+        restaurant_id_val := NEW.restaurant_id;
+    END IF;
+    
+    -- Insert or update analytics record for today
+    INSERT INTO public.business_analytics (restaurant_id, date, bookings, reviews)
+    VALUES (restaurant_id_val, today_date, 
+            CASE WHEN TG_TABLE_NAME = 'bookings' THEN 1 ELSE 0 END,
+            CASE WHEN TG_TABLE_NAME = 'reviews' THEN 1 ELSE 0 END)
+    ON CONFLICT (restaurant_id, date)
+    DO UPDATE SET
+        bookings = business_analytics.bookings + CASE WHEN TG_TABLE_NAME = 'bookings' THEN 1 ELSE 0 END,
+        reviews = business_analytics.reviews + CASE WHEN TG_TABLE_NAME = 'reviews' THEN 1 ELSE 0 END;
+    
+    RETURN COALESCE(NEW, OLD);
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER analytics_booking_trigger
+    AFTER INSERT ON public.bookings
+    FOR EACH ROW EXECUTE FUNCTION update_daily_analytics();
+
+CREATE TRIGGER analytics_review_trigger
+    AFTER INSERT ON public.reviews
+    FOR EACH ROW EXECUTE FUNCTION update_daily_analytics();
+
+-- ==========================================
+-- ROW LEVEL SECURITY (RLS) POLICIES
+-- ==========================================
+
+-- Enable RLS on all tables
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.restaurants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.menu_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.restaurant_images ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.favorites ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.bookmarks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.premier_subscriptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.payment_methods ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_stories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.business_analytics ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.partner_applications ENABLE ROW LEVEL SECURITY;
+
+-- Users policies
+CREATE POLICY "Users can view their own profile" ON public.users
+    FOR SELECT USING (auth.uid() = id);
+
+CREATE POLICY "Users can update their own profile" ON public.users
+    FOR UPDATE USING (auth.uid() = id);
+
+CREATE POLICY "Public profiles are viewable by everyone" ON public.users
+    FOR SELECT USING (true);
+
+-- Restaurants policies
+CREATE POLICY "Anyone can view active restaurants" ON public.restaurants
+    FOR SELECT USING (is_active = true);
+
+CREATE POLICY "Restaurant owners can view their restaurants" ON public.restaurants
+    FOR SELECT USING (auth.uid() = owner_id);
+
+CREATE POLICY "Restaurant owners can update their restaurants" ON public.restaurants
+    FOR UPDATE USING (auth.uid() = owner_id);
+
+CREATE POLICY "Restaurant owners can insert restaurants" ON public.restaurants
+    FOR INSERT WITH CHECK (auth.uid() = owner_id);
+
+-- Bookings policies
+CREATE POLICY "Users can view their own bookings" ON public.bookings
+    FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Restaurant owners can view bookings for their restaurants" ON public.bookings
+    FOR SELECT USING (
+        auth.uid() IN (
+            SELECT owner_id FROM public.restaurants WHERE id = restaurant_id
+        )
+    );
+
+CREATE POLICY "Users can create bookings" ON public.bookings
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own bookings" ON public.bookings
+    FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Restaurant owners can update bookings for their restaurants" ON public.bookings
+    FOR UPDATE USING (
+        auth.uid() IN (
+            SELECT owner_id FROM public.restaurants WHERE id = restaurant_id
+        )
+    );
+
+-- Reviews policies
+CREATE POLICY "Anyone can view reviews" ON public.reviews
+    FOR SELECT USING (true);
+
+CREATE POLICY "Users can create reviews" ON public.reviews
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own reviews" ON public.reviews
+    FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own reviews" ON public.reviews
+    FOR DELETE USING (auth.uid() = user_id);
+
+-- Menu items policies
+CREATE POLICY "Anyone can view available menu items" ON public.menu_items
+    FOR SELECT USING (is_available = true);
+
+CREATE POLICY "Restaurant owners can manage their menu items" ON public.menu_items
+    FOR ALL USING (
+        auth.uid() IN (
+            SELECT owner_id FROM public.restaurants WHERE id = restaurant_id
+        )
+    );
+
+-- Favorites policies
+CREATE POLICY "Users can manage their own favorites" ON public.favorites
+    FOR ALL USING (auth.uid() = user_id);
+
+-- Bookmarks policies
+CREATE POLICY "Users can manage their own bookmarks" ON public.bookmarks
+    FOR ALL USING (auth.uid() = user_id);
+
+-- Notifications policies
+CREATE POLICY "Users can view their own notifications" ON public.notifications
+    FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own notifications" ON public.notifications
+    FOR UPDATE USING (auth.uid() = user_id);
+
+-- Premier subscriptions policies
+CREATE POLICY "Users can view their own subscriptions" ON public.premier_subscriptions
+    FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own subscriptions" ON public.premier_subscriptions
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own subscriptions" ON public.premier_subscriptions
+    FOR UPDATE USING (auth.uid() = user_id);
+
+-- Payment methods policies
+CREATE POLICY "Users can manage their own payment methods" ON public.payment_methods
+    FOR ALL USING (auth.uid() = user_id);
+
+-- User stories policies
+CREATE POLICY "Anyone can view active stories" ON public.user_stories
+    FOR SELECT USING (is_active = true AND expires_at > NOW());
+
+CREATE POLICY "Users can manage their own stories" ON public.user_stories
+    FOR ALL USING (auth.uid() = user_id);
+
+-- Business analytics policies
+CREATE POLICY "Restaurant owners can view their analytics" ON public.business_analytics
+    FOR SELECT USING (
+        auth.uid() IN (
+            SELECT owner_id FROM public.restaurants WHERE id = restaurant_id
+        )
+    );
+
+-- ==========================================
+-- INSERT INITIAL DATA
+-- ==========================================
+
+-- Insert categories
+INSERT INTO public.categories (name, description, icon_url) VALUES
+('Cafe', 'Coffee shops and casual dining', 'https://example.com/icons/cafe.svg'),
+('Fine Dining', 'Upscale restaurants with sophisticated cuisine', 'https://example.com/icons/fine-dining.svg'),
+('Morocco Way', 'Authentic Moroccan cuisine', 'https://example.com/icons/morocco.svg'),
+('Dance', 'Restaurants with live music and dancing', 'https://example.com/icons/dance.svg'),
+('Loung & Pub', 'Bars and lounges', 'https://example.com/icons/pub.svg'),
+('Chiringuito', 'Beach bars and casual seafood', 'https://example.com/icons/chiringuito.svg'),
+('Fast Food', 'Quick service restaurants', 'https://example.com/icons/fast-food.svg'),
+('Italian', 'Italian cuisine and pizza', 'https://example.com/icons/italian.svg'),
+('Asian', 'Asian cuisine including Chinese, Japanese, Thai', 'https://example.com/icons/asian.svg'),
+('Mediterranean', 'Mediterranean and Middle Eastern cuisine', 'https://example.com/icons/mediterranean.svg');
+
+-- Insert FAQs
+INSERT INTO public.faqs (question, answer, category, display_order) VALUES
+('How do I search for restaurants?', 'Use the search bar on the home screen to find restaurants by name, cuisine type, or location. You can also apply filters for price range, rating, and distance.', 'General', 1),
+('How do I create an account?', 'Tap on "Sign Up" on the login screen, fill in your details, and verify your email address. You can also sign up using Google or Facebook.', 'Account', 2),
+('How do I reset my password?', 'On the login screen, tap "Forgot Password" and enter your email address. You will receive a reset link in your email.', 'Account', 3),
+('How do I make a reservation?', 'Find your desired restaurant, tap "Book Now", select date, time, and party size, then confirm your booking.', 'General', 4),
+('Can I edit my review?', 'Yes, you can edit your reviews within 24 hours of posting. Go to your profile and select "My Reviews" to edit or delete them.', 'Reviews', 5),
+('How do I invite a review?', 'After completing your dining experience, you will receive a notification to review the restaurant. You can also manually add reviews from the restaurant page.', 'Reviews', 6),
+('What is JAW Premier?', 'JAW Premier is our premium subscription service offering priority reservations, exclusive discounts, and personalized recommendations for $120/month.', 'Premier', 7),
+('How do I cancel a booking?', 'Go to "My Bookings", find your reservation, and tap "Cancel". Please note cancellation policies may vary by restaurant.', 'General', 8);
+
+-- Insert system settings
+INSERT INTO public.system_settings (key, value, description) VALUES
+('premier_plan_price', '120.00', 'Monthly price for JAW Premier subscription in USD'),
+('max_party_size', '20', 'Maximum allowed party size for bookings'),
+('review_edit_window_hours', '24', 'Number of hours users can edit their reviews'),
+('story_expiry_hours', '24', 'Number of hours before user stories expire'),
+('booking_advance_days', '60', 'Maximum days in advance users can make bookings'),
+('min_booking_notice_hours', '2', 'Minimum hours notice required for bookings'),
+('app_version', '1.0.0', 'Current app version'),
+('maintenance_mode', 'false', 'System maintenance mode flag'),
+('support_email', 'support@jawapp.com', 'Customer support email address'),
+('contact_phone', '+1 (555) 123-4567', 'Customer support phone number');
+
+-- ==========================================
+-- VIEWS FOR COMMON QUERIES
+-- ==========================================
+
+-- Restaurant with categories view
+CREATE VIEW public.restaurant_details AS
+SELECT 
+    r.*,
+    ARRAY_AGG(DISTINCT c.name) FILTER (WHERE c.name IS NOT NULL) as categories,
+    COUNT(DISTINCT rv.id) as review_count,
+    COUNT(DISTINCT b.id) as booking_count
+FROM public.restaurants r
+LEFT JOIN public.restaurant_categories rc ON r.id = rc.restaurant_id
+LEFT JOIN public.categories c ON rc.category_id = c.id
+LEFT JOIN public.reviews rv ON r.id = rv.restaurant_id
+LEFT JOIN public.bookings b ON r.id = b.restaurant_id
+GROUP BY r.id;
+
+-- User booking history view
+CREATE VIEW public.user_booking_history AS
+SELECT 
+    b.*,
+    r.name as restaurant_name,
+    r.address as restaurant_address,
+    r.phone as restaurant_phone,
+    r.average_rating as restaurant_rating
+FROM public.bookings b
+JOIN public.restaurants r ON b.restaurant_id = r.id
+ORDER BY b.booking_date DESC, b.booking_time DESC;
+
+-- Popular restaurants view
+CREATE VIEW public.popular_restaurants AS
+SELECT 
+    r.*,
+    COUNT(f.user_id) as favorite_count,
+    COUNT(DISTINCT b.id) as recent_bookings
+FROM public.restaurants r
+LEFT JOIN public.favorites f ON r.id = f.restaurant_id
+LEFT JOIN public.bookings b ON r.id = b.restaurant_id 
+    AND b.created_at > NOW() - INTERVAL '30 days'
+WHERE r.is_active = true AND r.is_verified = true
+GROUP BY r.id
+HAVING COUNT(f.user_id) > 0 OR COUNT(DISTINCT b.id) > 0
+ORDER BY favorite_count DESC, recent_bookings DESC;
+
+-- ==========================================
+-- FUNCTIONS FOR BUSINESS LOGIC
+-- ==========================================
+
+-- Function to check if user has JAW Premier
+CREATE OR REPLACE FUNCTION public.has_premier_subscription(user_id UUID)
+RETURNS BOOLEAN AS $$
+DECLARE
+    has_premium BOOLEAN := FALSE;
+BEGIN
+    SELECT EXISTS(
+        SELECT 1 FROM public.premier_subscriptions 
+        WHERE user_id = $1 
+        AND status = 'active' 
+        AND end_date >= CURRENT_DATE
+    ) INTO has_premium;
+    
+    RETURN has_premium;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to get user's favorite restaurants
+CREATE OR REPLACE FUNCTION public.get_user_favorites(user_id UUID)
+RETURNS TABLE (
+    restaurant_id UUID,
+    restaurant_name VARCHAR(255),
+    cuisine_type VARCHAR(100),
+    average_rating DECIMAL(2,1),
+    price_range price_range,
+    city VARCHAR(100),
+    favorited_at TIMESTAMP WITH TIME ZONE
+) AS $
+BEGIN
+    RETURN QUERY
+    SELECT 
+        r.id,
+        r.name,
+        r.cuisine_type,
+        r.average_rating,
+        r.price_range,
+        r.city,
+        f.created_at
+    FROM public.favorites f
+    JOIN public.restaurants r ON f.restaurant_id = r.id
+    WHERE f.user_id = $1 AND r.is_active = true
+    ORDER BY f.created_at DESC;
+END;
+$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to search restaurants with filters
+CREATE OR REPLACE FUNCTION public.search_restaurants(
+    search_text TEXT DEFAULT NULL,
+    filter_city TEXT DEFAULT NULL,
+    filter_cuisine TEXT DEFAULT NULL,
+    filter_price_range price_range DEFAULT NULL,
+    min_rating DECIMAL DEFAULT NULL,
+    category_ids UUID[] DEFAULT NULL,
+    user_lat DECIMAL DEFAULT NULL,
+    user_lng DECIMAL DEFAULT NULL,
+    max_distance_km INTEGER DEFAULT NULL,
+    limit_count INTEGER DEFAULT 20,
+    offset_count INTEGER DEFAULT 0
+)
+RETURNS TABLE (
+    id UUID,
+    name VARCHAR(255),
+    description TEXT,
+    address TEXT,
+    city VARCHAR(100),
+    cuisine_type VARCHAR(100),
+    price_range price_range,
+    average_rating DECIMAL(2,1),
+    total_reviews INTEGER,
+    distance_km DECIMAL,
+    primary_image_url TEXT,
+    categories TEXT[]
+) AS $
+BEGIN
+    RETURN QUERY
+    SELECT 
+        r.id,
+        r.name,
+        r.description,
+        r.address,
+        r.city,
+        r.cuisine_type,
+        r.price_range,
+        r.average_rating,
+        r.total_reviews,
+        CASE 
+            WHEN user_lat IS NOT NULL AND user_lng IS NOT NULL AND r.latitude IS NOT NULL AND r.longitude IS NOT NULL THEN
+                ROUND(
+                    (6371 * acos(
+                        cos(radians(user_lat)) * cos(radians(r.latitude)) * 
+                        cos(radians(r.longitude) - radians(user_lng)) + 
+                        sin(radians(user_lat)) * sin(radians(r.latitude))
+                    ))::numeric, 2
+                )
+            ELSE NULL
+        END as distance_km,
+        (SELECT ri.image_url FROM public.restaurant_images ri 
+         WHERE ri.restaurant_id = r.id AND ri.is_primary = true LIMIT 1) as primary_image_url,
+        ARRAY(
+            SELECT c.name 
+            FROM public.restaurant_categories rc 
+            JOIN public.categories c ON rc.category_id = c.id 
+            WHERE rc.restaurant_id = r.id
+        ) as categories
+    FROM public.restaurants r
+    WHERE r.is_active = true 
+        AND r.is_verified = true
+        AND (search_text IS NULL OR (
+            r.name ILIKE '%' || search_text || '%' OR 
+            r.description ILIKE '%' || search_text || '%' OR 
+            r.cuisine_type ILIKE '%' || search_text || '%'
+        ))
+        AND (filter_city IS NULL OR r.city ILIKE '%' || filter_city || '%')
+        AND (filter_cuisine IS NULL OR r.cuisine_type ILIKE '%' || filter_cuisine || '%')
+        AND (filter_price_range IS NULL OR r.price_range = filter_price_range)
+        AND (min_rating IS NULL OR r.average_rating >= min_rating)
+        AND (category_ids IS NULL OR EXISTS (
+            SELECT 1 FROM public.restaurant_categories rc 
+            WHERE rc.restaurant_id = r.id AND rc.category_id = ANY(category_ids)
+        ))
+        AND (max_distance_km IS NULL OR user_lat IS NULL OR user_lng IS NULL OR 
+             r.latitude IS NULL OR r.longitude IS NULL OR
+             (6371 * acos(
+                cos(radians(user_lat)) * cos(radians(r.latitude)) * 
+                cos(radians(r.longitude) - radians(user_lng)) + 
+                sin(radians(user_lat)) * sin(radians(r.latitude))
+             )) <= max_distance_km)
+    ORDER BY 
+        CASE WHEN user_lat IS NOT NULL AND user_lng IS NOT NULL THEN distance_km END ASC,
+        r.average_rating DESC,
+        r.total_reviews DESC
+    LIMIT limit_count OFFSET offset_count;
+END;
+$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to get restaurant availability for a specific date
+CREATE OR REPLACE FUNCTION public.get_restaurant_availability(
+    restaurant_id UUID,
+    check_date DATE,
+    party_size INTEGER DEFAULT 2
+)
+RETURNS TABLE (
+    time_slot TIME,
+    is_available BOOLEAN,
+    booking_count INTEGER
+) AS $
+DECLARE
+    slot TIME;
+BEGIN
+    -- Generate time slots from 10:00 to 22:00 (every 30 minutes)
+    FOR slot IN SELECT generate_series(
+        '10:00:00'::TIME, 
+        '22:00:00'::TIME, 
+        '30 minutes'::INTERVAL
+    )::TIME
+    LOOP
+        RETURN QUERY
+        SELECT 
+            slot as time_slot,
+            (SELECT COUNT(*) FROM public.bookings b 
+             WHERE b.restaurant_id = $1 
+             AND b.booking_date = check_date 
+             AND b.booking_time = slot
+             AND b.status IN ('confirmed', 'approved')) < 5 as is_available, -- Assume max 5 bookings per slot
+            (SELECT COUNT(*)::INTEGER FROM public.bookings b 
+             WHERE b.restaurant_id = $1 
+             AND b.booking_date = check_date 
+             AND b.booking_time = slot
+             AND b.status IN ('confirmed', 'approved')) as booking_count;
+    END LOOP;
+END;
+$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to record restaurant view for analytics
+CREATE OR REPLACE FUNCTION public.record_restaurant_view(
+    restaurant_id UUID,
+    user_id UUID DEFAULT NULL
+)
+RETURNS BOOLEAN AS $
+BEGIN
+    INSERT INTO public.business_analytics (restaurant_id, date, views, impressions)
+    VALUES (restaurant_id, CURRENT_DATE, 1, 1)
+    ON CONFLICT (restaurant_id, date)
+    DO UPDATE SET 
+        views = business_analytics.views + 1,
+        impressions = business_analytics.impressions + 1;
+    
+    RETURN TRUE;
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN FALSE;
+END;
+$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to get restaurant dashboard analytics
+CREATE OR REPLACE FUNCTION public.get_restaurant_dashboard(
+    restaurant_id UUID,
+    start_date DATE DEFAULT NULL,
+    end_date DATE DEFAULT NULL
+)
+RETURNS TABLE (
+    total_views INTEGER,
+    total_bookings INTEGER,
+    total_reviews INTEGER,
+    total_favorites INTEGER,
+    avg_rating DECIMAL(2,1),
+    revenue DECIMAL(12,2),
+    conversion_rate DECIMAL(5,2),
+    daily_stats JSONB
+) AS $
+DECLARE
+    calc_start_date DATE;
+    calc_end_date DATE;
+BEGIN
+    -- Default to last 30 days if no dates provided
+    calc_start_date := COALESCE(start_date, CURRENT_DATE - INTERVAL '30 days');
+    calc_end_date := COALESCE(end_date, CURRENT_DATE);
+    
+    RETURN QUERY
+    SELECT 
+        COALESCE(SUM(ba.views), 0)::INTEGER as total_views,
+        COALESCE(SUM(ba.bookings), 0)::INTEGER as total_bookings,
+        COALESCE(SUM(ba.reviews), 0)::INTEGER as total_reviews,
+        COALESCE(SUM(ba.favorites), 0)::INTEGER as total_favorites,
+        r.average_rating,
+        COALESCE(SUM(ba.revenue), 0.0) as revenue,
+        CASE 
+            WHEN SUM(ba.views) > 0 THEN 
+                ROUND((SUM(ba.bookings)::DECIMAL / SUM(ba.views) * 100), 2)
+            ELSE 0.0
+        END as conversion_rate,
+        JSONB_AGG(
+            JSONB_BUILD_OBJECT(
+                'date', ba.date,
+                'views', ba.views,
+                'bookings', ba.bookings,
+                'reviews', ba.reviews,
+                'revenue', ba.revenue
+            ) ORDER BY ba.date
+        ) as daily_stats
+    FROM public.restaurants r
+    LEFT JOIN public.business_analytics ba ON r.id = ba.restaurant_id
+        AND ba.date BETWEEN calc_start_date AND calc_end_date
+    WHERE r.id = restaurant_id
+    GROUP BY r.id, r.average_rating;
+END;
+$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to send notification
+CREATE OR REPLACE FUNCTION public.send_notification(
+    recipient_id UUID,
+    notification_title VARCHAR(255),
+    notification_message TEXT,
+    notification_type notification_type,
+    action_url TEXT DEFAULT NULL,
+    metadata JSONB DEFAULT NULL
+)
+RETURNS UUID AS $
+DECLARE
+    notification_id UUID;
+BEGIN
+    INSERT INTO public.notifications (
+        user_id,
+        title,
+        message,
+        type,
+        action_url,
+        metadata
+    ) VALUES (
+        recipient_id,
+        notification_title,
+        notification_message,
+        notification_type,
+        action_url,
+        metadata
+    ) RETURNING id INTO notification_id;
+    
+    RETURN notification_id;
+END;
+$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to check booking conflicts
+CREATE OR REPLACE FUNCTION public.check_booking_conflict(
+    restaurant_id UUID,
+    booking_date DATE,
+    booking_time TIME,
+    party_size INTEGER,
+    exclude_booking_id UUID DEFAULT NULL
+)
+RETURNS BOOLEAN AS $
+DECLARE
+    conflict_count INTEGER;
+    max_capacity INTEGER := 50; -- Assume restaurant capacity
+BEGIN
+    SELECT COUNT(*) INTO conflict_count
+    FROM public.bookings
+    WHERE restaurant_id = $1
+        AND booking_date = $2
+        AND booking_time = $3
+        AND status IN ('confirmed', 'approved')
+        AND (exclude_booking_id IS NULL OR id != exclude_booking_id);
+    
+    -- Check if adding this booking would exceed capacity
+    -- This is a simplified check - in reality, you'd want more sophisticated capacity management
+    RETURN (conflict_count * 4) + party_size > max_capacity; -- Assume average table size of 4
+END;
+$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ==========================================
+-- SAMPLE DATA FOR TESTING
+-- ==========================================
+
+-- Note: This sample data should be added after setting up authentication
+-- and having real user IDs from Supabase Auth
+
+-- Sample data insertion function (run after users are created)
+CREATE OR REPLACE FUNCTION public.insert_sample_data()
+RETURNS VOID AS $
+DECLARE
+    sample_user_id UUID;
+    sample_restaurant_id UUID;
+    sample_category_id UUID;
+BEGIN
+    -- This function should be called manually after creating test users
+    -- It will insert sample restaurants, bookings, and reviews for testing
+    
+    RAISE NOTICE 'Sample data function created. Run manually after user creation.';
+END;
+$ LANGUAGE plpgsql;
+
+-- ==========================================
+-- CLEANUP AND MAINTENANCE FUNCTIONS
+-- ==========================================
+
+-- Function to clean up expired stories
+CREATE OR REPLACE FUNCTION public.cleanup_expired_stories()
+RETURNS INTEGER AS $
+DECLARE
+    deleted_count INTEGER;
+BEGIN
+    WITH deleted AS (
+        DELETE FROM public.user_stories 
+        WHERE expires_at < NOW() 
+        RETURNING id
+    )
+    SELECT COUNT(*) INTO deleted_count FROM deleted;
+    
+    RETURN deleted_count;
+END;
+$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to clean up old notifications (older than 90 days)
+CREATE OR REPLACE FUNCTION public.cleanup_old_notifications()
+RETURNS INTEGER AS $
+DECLARE
+    deleted_count INTEGER;
+BEGIN
+    WITH deleted AS (
+        DELETE FROM public.notifications 
+        WHERE created_at < NOW() - INTERVAL '90 days' 
+        RETURNING id
+    )
+    SELECT COUNT(*) INTO deleted_count FROM deleted;
+    
+    RETURN deleted_count;
+END;
+$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to update restaurant search rankings (run daily)
+CREATE OR REPLACE FUNCTION public.update_restaurant_rankings()
+RETURNS VOID AS $
+BEGIN
+    -- This would update a ranking score based on various factors
+    -- For now, we'll just update the analytics to ensure data freshness
+    
+    UPDATE public.restaurants 
+    SET updated_at = NOW()
+    WHERE is_active = true;
+    
+    -- You could add more sophisticated ranking logic here
+    RAISE NOTICE 'Restaurant rankings updated';
+END;
+$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ==========================================
+-- SCHEDULED FUNCTIONS (for pg_cron if available)
+-- ==========================================
+
+-- These would be scheduled if pg_cron extension is available:
+-- SELECT cron.schedule('cleanup-expired-stories', '0 0 * * *', 'SELECT public.cleanup_expired_stories();');
+-- SELECT cron.schedule('cleanup-old-notifications', '0 1 * * 0', 'SELECT public.cleanup_old_notifications();');
+-- SELECT cron.schedule('update-rankings', '0 2 * * *', 'SELECT public.update_restaurant_rankings();');
+
+-- ==========================================
+-- API HELPER FUNCTIONS FOR FRONTEND
+-- ==========================================
+
+-- Function to get user profile with stats
+CREATE OR REPLACE FUNCTION public.get_user_profile_stats(user_id UUID)
+RETURNS TABLE (
+    user_data JSONB,
+    total_bookings INTEGER,
+    total_reviews INTEGER,
+    total_favorites INTEGER,
+    is_premier_member BOOLEAN,
+    member_since DATE
+) AS $
+BEGIN
+    RETURN QUERY
+    SELECT 
+        TO_JSONB(u.*) as user_data,
+        (SELECT COUNT(*)::INTEGER FROM public.bookings WHERE user_id = $1) as total_bookings,
+        (SELECT COUNT(*)::INTEGER FROM public.reviews WHERE user_id = $1) as total_reviews,
+        (SELECT COUNT(*)::INTEGER FROM public.favorites WHERE user_id = $1) as total_favorites,
+        public.has_premier_subscription($1) as is_premier_member,
+        u.created_at::DATE as member_since
+    FROM public.users u
+    WHERE u.id = $1;
+END;
+$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to get restaurant full details
+CREATE OR REPLACE FUNCTION public.get_restaurant_full_details(restaurant_id UUID, user_id UUID DEFAULT NULL)
+RETURNS TABLE (
+    restaurant_data JSONB,
+    images JSONB,
+    menu_items JSONB,
+    recent_reviews JSONB,
+    is_favorited BOOLEAN,
+    is_bookmarked BOOLEAN,
+    categories TEXT[]
+) AS $
+BEGIN
+    RETURN QUERY
+    SELECT 
+        TO_JSONB(r.*) as restaurant_data,
+        (SELECT JSONB_AGG(
+            JSONB_BUILD_OBJECT(
+                'id', ri.id,
+                'url', ri.image_url,
+                'caption', ri.caption,
+                'is_primary', ri.is_primary
+            ) ORDER BY ri.is_primary DESC, ri.display_order
+        ) FROM public.restaurant_images ri WHERE ri.restaurant_id = $1) as images,
+        (SELECT JSONB_AGG(
+            TO_JSONB(mi.*) ORDER BY mi.display_order, mi.name
+        ) FROM public.menu_items mi WHERE mi.restaurant_id = $1 AND mi.is_available = true) as menu_items,
+        (SELECT JSONB_AGG(
+            JSONB_BUILD_OBJECT(
+                'id', rv.id,
+                'rating', rv.rating,
+                'title', rv.title,
+                'comment', rv.comment,
+                'created_at', rv.created_at,
+                'user_name', u.first_name || ' ' || u.last_name,
+                'user_image', u.profile_image
+            ) ORDER BY rv.created_at DESC
+        ) FROM public.reviews rv 
+        JOIN public.users u ON rv.user_id = u.id 
+        WHERE rv.restaurant_id = $1 LIMIT 10) as recent_reviews,
+        CASE 
+            WHEN user_id IS NOT NULL THEN 
+                EXISTS(SELECT 1 FROM public.favorites WHERE user_id = $2 AND restaurant_id = $1)
+            ELSE FALSE
+        END as is_favorited,
+        CASE 
+            WHEN user_id IS NOT NULL THEN 
+                EXISTS(SELECT 1 FROM public.bookmarks WHERE user_id = $2 AND restaurant_id = $1)
+            ELSE FALSE
+        END as is_bookmarked,
+        ARRAY(
+            SELECT c.name 
+            FROM public.restaurant_categories rc 
+            JOIN public.categories c ON rc.category_id = c.id 
+            WHERE rc.restaurant_id = $1
+        ) as categories
+    FROM public.restaurants r
+    WHERE r.id = $1;
+END;
+$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ==========================================
+-- FINAL OPTIMIZATIONS AND COMMENTS
+-- ==========================================
+
+-- Add comments to tables for documentation
+COMMENT ON TABLE public.users IS 'User profiles extending Supabase auth.users';
+COMMENT ON TABLE public.restaurants IS 'Restaurant information and profiles';
+COMMENT ON TABLE public.bookings IS 'Restaurant reservations and bookings';
+COMMENT ON TABLE public.reviews IS 'Customer reviews and ratings';
+COMMENT ON TABLE public.business_analytics IS 'Daily analytics data for restaurants';
+COMMENT ON TABLE public.premier_subscriptions IS 'JAW Premier subscription records';
+
+-- Add column comments for important fields
+COMMENT ON COLUMN public.restaurants.average_rating IS 'Calculated average rating from reviews (1-5)';
+COMMENT ON COLUMN public.restaurants.business_hours IS 'JSON object with opening hours for each day';
+COMMENT ON COLUMN public.bookings.confirmation_code IS 'Auto-generated 8-character confirmation code';
+COMMENT ON COLUMN public.business_analytics.conversion_rate IS 'Percentage of views that result in bookings';
+
+-- Create composite indexes for common query patterns
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_restaurants_search 
+ON public.restaurants USING GIN (to_tsvector('english', name || ' ' || COALESCE(description, '') || ' ' || COALESCE(cuisine_type, '')));
+
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_bookings_restaurant_date_time 
+ON public.bookings (restaurant_id, booking_date, booking_time) WHERE status IN ('confirmed', 'approved');
+
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_reviews_restaurant_rating 
+ON public.reviews (restaurant_id, rating, created_at DESC);
+
+-- Final success message
+DO $
+BEGIN
+    RAISE NOTICE '========================================';
+    RAISE NOTICE 'JAW Restaurant App Database Setup Complete!';
+    RAISE NOTICE '========================================';
+    RAISE NOTICE 'Tables created: % tables', (SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name NOT LIKE 'pg_%');
+    RAISE NOTICE 'Functions created: % functions', (SELECT COUNT(*) FROM information_schema.routines WHERE routine_schema = 'public');
+    RAISE NOTICE 'Indexes created: % indexes', (SELECT COUNT(*) FROM pg_indexes WHERE schemaname = 'public');
+    RAISE NOTICE '========================================';
+    RAISE NOTICE 'Next steps:';
+    RAISE NOTICE '1. Set up Supabase Auth users';
+    RAISE NOTICE '2. Run insert_sample_data() for testing';
+    RAISE NOTICE '3. Configure Storage buckets for images';
+    RAISE NOTICE '4. Set up realtime subscriptions';
+    RAISE NOTICE '========================================';
+END $;

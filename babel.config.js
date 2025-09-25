@@ -17,7 +17,7 @@ module.exports = function (api) {
   // Add reanimated plugin only if available to avoid build errors
   try {
     require.resolve('react-native-reanimated/plugin');
-    plugins.push('react-native-reanimated/plugin');
+    plugins.push(['react-native-reanimated/plugin']);
   } catch (e) {
     console.warn('react-native-reanimated plugin not available, skipping...');
   }
