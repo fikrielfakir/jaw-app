@@ -18,15 +18,7 @@ module.exports = function (api) {
   // TODO: Re-enable after resolving react-native-worklets compatibility
 
   return {
-    presets: [
-      [
-        'babel-preset-expo',
-        {
-          // Disable reanimated for web platform
-          disableImportExportTransform: isWeb,
-        },
-      ],
-    ],
+    presets: ['babel-preset-expo'],
     plugins,
   };
 };
