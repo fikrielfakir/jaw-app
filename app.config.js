@@ -27,6 +27,9 @@ export default {
       favicon: "./assets/favicon.png",
       bundler: "metro"
     },
+    devClient: {
+      silentLaunch: true
+    },
     plugins: [
       "expo-router",
       [
