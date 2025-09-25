@@ -1,6 +1,6 @@
 import { createTamagui } from '@tamagui/core'
 import { createInterFont } from '@tamagui/font-inter'
-import { createMedia } from '@tamagui/core'
+import { createMedia } from '@tamagui/react-native-media-driver'
 import { createTokens } from '@tamagui/core'
 import { shorthands } from '@tamagui/shorthands'
 import { themes, tokens as defaultTokens } from '@tamagui/themes'
