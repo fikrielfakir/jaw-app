@@ -7,12 +7,14 @@ interface UIState {
   activeTab: string;
   searchQuery: string;
   selectedCategory: string | null;
+  hasCompletedOnboarding: boolean;
   toggleTheme: () => void;
   setLanguage: (language: 'en' | 'fr' | 'es') => void;
   setBottomSheetOpen: (isOpen: boolean) => void;
   setActiveTab: (tab: string) => void;
   setSearchQuery: (query: string) => void;
   setSelectedCategory: (category: string | null) => void;
+  setOnboardingCompleted: (completed: boolean) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -22,10 +24,12 @@ export const useUIStore = create<UIState>((set) => ({
   activeTab: 'home',
   searchQuery: '',
   selectedCategory: null,
+  hasCompletedOnboarding: false,
   toggleTheme: () => set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
   setLanguage: (language) => set({ language }),
   setBottomSheetOpen: (isBottomSheetOpen) => set({ isBottomSheetOpen }),
   setActiveTab: (activeTab) => set({ activeTab }),
   setSearchQuery: (searchQuery) => set({ searchQuery }),
   setSelectedCategory: (selectedCategory) => set({ selectedCategory }),
+  setOnboardingCompleted: (hasCompletedOnboarding) => set({ hasCompletedOnboarding }),
 }));
