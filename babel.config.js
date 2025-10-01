@@ -18,7 +18,10 @@ module.exports = function (api) {
   // TODO: Re-enable after resolving react-native-worklets compatibility
 
   return {
-    presets: ['babel-preset-expo'],
+    presets: [
+      ['babel-preset-expo', { jsxImportSource: 'nativewind' }],
+      'nativewind/babel',
+    ],
     plugins,
   };
 };

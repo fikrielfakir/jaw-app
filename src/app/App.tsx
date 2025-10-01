@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { supabase } from '@/lib/supabase';
 import { TamaguiProvider } from './providers/TamaguiProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import '../../global.css';
 
 export default function App() {
   const { setUser, setLoading } = useAuthStore();
