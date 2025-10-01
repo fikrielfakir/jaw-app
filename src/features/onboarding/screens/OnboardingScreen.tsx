@@ -9,7 +9,6 @@ interface OnboardingData {
   title: string;
   image: any;
   containerStyle: {
-    backgroundColor: string;
     borderRadius: number;
     width: DimensionValue;
     height: DimensionValue;
@@ -22,7 +21,6 @@ const onboardingData: OnboardingData[] = [
     title: 'Discover the perfect vibe for every occasion',
     image: require('../../../../assets/illustration-dining.png'),
     containerStyle: {
-      backgroundColor: '#8B5DFF',
       borderRadius: 150,
       width: '85%',
       height: '40%',
@@ -33,7 +31,6 @@ const onboardingData: OnboardingData[] = [
     title: 'Share your moments with reviews, photos, and videos',
     image: require('../../../../assets/illustration-reviews.png'),
     containerStyle: {
-      backgroundColor: '#F5E6D3',
       borderRadius: 120,
       width: '80%',
       height: '35%',
@@ -44,7 +41,6 @@ const onboardingData: OnboardingData[] = [
     title: 'Easily grow and promote all your businesses',
     image: require('../../../../assets/illustration-business.png'),
     containerStyle: {
-      backgroundColor: '#F5E6D3',
       borderRadius: 100,
       width: '75%',
       height: '32%',
@@ -55,7 +51,6 @@ const onboardingData: OnboardingData[] = [
     title: 'Book a table and create lasting memories',
     image: require('../../../../assets/illustration-booking.png'),
     containerStyle: {
-      backgroundColor: '#B8E6FF',
       borderRadius: 150,
       width: '80%',
       height: '55%',
@@ -95,9 +90,9 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       
-      {/* Dark Purple/Navy Background - matches design #2D2D4A to #3A3A5A gradient */}
+      {/* Dark Purple to Black Gradient */}
       <LinearGradient
-        colors={['#2D2D4A', '#3A3A5A', '#2D2D4A']}
+        colors={['rgba(69, 48, 99, 0.86)', '#000000']}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
@@ -132,18 +127,6 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
             <View style={[
               styles.illustrationContainer,
               currentItem.containerStyle,
-              Platform.select({
-                web: {
-                  boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.3)',
-                },
-                default: {
-                  shadowColor: 'rgba(0, 0, 0, 0.3)',
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 16,
-                  elevation: 8,
-                },
-              }),
             ]}>
               <Image
                 source={currentItem.image}
