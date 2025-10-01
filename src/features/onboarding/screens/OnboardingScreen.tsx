@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, Dimensions, StatusBar } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StatusBar, StyleSheet, Platform, useWindowDimensions, DimensionValue } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useUIStore } from '@/store/uiStore';
-
-const { width, height } = Dimensions.get('window');
 
 interface OnboardingData {
   id: number;
   title: string;
   image: any;
-  containerStyle: any;
+  containerStyle: {
+    backgroundColor: string;
+    borderRadius: number;
+    width: DimensionValue;
+    height: DimensionValue;
+  };
 }
 
 const onboardingData: OnboardingData[] = [
@@ -21,8 +24,8 @@ const onboardingData: OnboardingData[] = [
     containerStyle: {
       backgroundColor: '#8B5DFF',
       borderRadius: 150,
-      width: width * 0.85,
-      height: height * 0.4,
+      width: '85%',
+      height: '40%',
     },
   },
   {
@@ -32,8 +35,8 @@ const onboardingData: OnboardingData[] = [
     containerStyle: {
       backgroundColor: '#F5E6D3',
       borderRadius: 120,
-      width: width * 0.8,
-      height: height * 0.35,
+      width: '80%',
+      height: '35%',
     },
   },
   {
@@ -43,8 +46,8 @@ const onboardingData: OnboardingData[] = [
     containerStyle: {
       backgroundColor: '#F5E6D3',
       borderRadius: 100,
-      width: width * 0.75,
-      height: height * 0.32,
+      width: '75%',
+      height: '32%',
     },
   },
   {
@@ -54,8 +57,8 @@ const onboardingData: OnboardingData[] = [
     containerStyle: {
       backgroundColor: '#B8E6FF',
       borderRadius: 150,
-      width: width * 0.8,
-      height: width * 0.8,
+      width: '80%',
+      height: '55%',
     },
   },
 ];
@@ -67,6 +70,7 @@ interface OnboardingScreenProps {
 export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const { setOnboardingCompleted } = useUIStore();
+  const { height } = useWindowDimensions();
 
   const handleNext = () => {
     if (currentIndex < onboardingData.length - 1) {
@@ -88,163 +92,102 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
   const currentItem = onboardingData[currentIndex];
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#2D2D4A' }}>
+    <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       
       {/* Dark Purple/Navy Background - matches design #2D2D4A to #3A3A5A gradient */}
       <LinearGradient
         colors={['#2D2D4A', '#3A3A5A', '#2D2D4A']}
-        style={{ flex: 1 }}
+        style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
       >
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={styles.safeArea}>
           {/* Header with Logo and Skip Button */}
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            paddingHorizontal: 24,
-            paddingTop: 8,
-            paddingBottom: 24,
-          }}>
+          <View style={styles.header}>
             {/* JAW Logo - centered */}
-            <View style={{ 
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              alignItems: 'center',
-              zIndex: 0,
-            }}>
-              <Text style={{
-                fontSize: 40,
-                fontWeight: 'bold',
-                color: 'white',
-                letterSpacing: 2,
-                fontStyle: 'italic',
-              }}>
-                JAW
-              </Text>
+            <View style={styles.logoContainer}>
+              <Text style={styles.logo}>JAW</Text>
             </View>
             
-            {/* Skip Button - positioned at top right (x: 311px from design) */}
-            <View style={{ flex: 1 }} />
+            {/* Skip Button - positioned at top right */}
+            <View style={styles.spacer} />
             <TouchableOpacity 
               onPress={handleSkip}
-              style={{ 
-                zIndex: 1,
-                paddingVertical: 8,
-                paddingHorizontal: 4,
-              }}
+              style={styles.skipButton}
             >
-              <Text style={{
-                fontSize: 17,
-                color: '#FFFFFF',
-                fontWeight: '400',
-              }}>
-                Skip
-              </Text>
+              <Text style={styles.skipText}>Skip</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Title - positioned at y: 450px from design (approximated with flex) */}
-          <View style={{
-            paddingHorizontal: 37.5, // (375 - 300) / 2 for max-width: 300px centered
-            marginTop: height * 0.15, // Position title in upper-middle area
-          }}>
-            <Text style={{
-              fontSize: 28,
-              fontWeight: '600',
-              color: '#FFFFFF',
-              textAlign: 'center',
-              lineHeight: 36,
-              maxWidth: 300,
-              alignSelf: 'center',
-            }}>
+          {/* Title - positioned in upper-middle area */}
+          <View style={[styles.titleContainer, { marginTop: height * 0.15 }]}>
+            <Text style={styles.title}>
               {currentItem.title}
             </Text>
           </View>
 
           {/* Illustration Container - centered */}
-          <View style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            paddingHorizontal: 24,
-            marginTop: -20,
-          }}>
+          <View style={styles.illustrationWrapper}>
             <View style={[
+              styles.illustrationContainer,
               currentItem.containerStyle,
-              {
-                justifyContent: 'center',
-                alignItems: 'center',
-                shadowColor: 'rgba(0, 0, 0, 0.3)',
-                shadowOffset: { width: 0, height: 8 },
-                shadowOpacity: 0.3,
-                shadowRadius: 16,
-                elevation: 8,
-              }
+              Platform.select({
+                web: {
+                  boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.3)',
+                },
+                default: {
+                  shadowColor: 'rgba(0, 0, 0, 0.3)',
+                  shadowOffset: { width: 0, height: 8 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 16,
+                  elevation: 8,
+                },
+              }),
             ]}>
               <Image
                 source={currentItem.image}
-                style={{
-                  width: '90%',
-                  height: '90%',
-                  resizeMode: 'contain',
-                }}
+                style={styles.illustration}
+                resizeMode="contain"
               />
             </View>
           </View>
 
-          {/* Bottom Section - positioned at bottom */}
-          <View style={{
-            paddingHorizontal: 32,
-            paddingBottom: 40,
-          }}>
-            {/* Pagination Dots - y: 780px from design (near bottom) */}
-            <View style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              marginBottom: 24,
-            }}>
+          {/* Bottom Section */}
+          <View style={styles.bottomSection}>
+            {/* Pagination Dots */}
+            <View style={styles.dotsContainer}>
               {onboardingData.map((_, index) => (
                 <View
                   key={index}
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: 4,
-                    backgroundColor: index === currentIndex ? '#FFFFFF' : 'transparent',
-                    borderWidth: index === currentIndex ? 0 : 1,
-                    borderColor: index === currentIndex ? 'transparent' : 'rgba(255, 255, 255, 0.5)',
-                    marginHorizontal: 4,
-                  }}
+                  style={[
+                    styles.dot,
+                    index === currentIndex ? styles.dotActive : styles.dotInactive,
+                  ]}
                 />
               ))}
             </View>
 
-            {/* Next Button - positioned at bottom (y: 734px from design) */}
+            {/* Next Button */}
             <TouchableOpacity
               onPress={handleNext}
-              style={{
-                backgroundColor: '#8B5DFF',
-                paddingVertical: 18,
-                borderRadius: 12,
-                shadowColor: '#8B5DFF',
-                shadowOffset: { width: 0, height: 8 },
-                shadowOpacity: 0.3,
-                shadowRadius: 16,
-                elevation: 8,
-              }}
+              style={[
+                styles.nextButton,
+                Platform.select({
+                  web: {
+                    boxShadow: '0px 8px 16px rgba(139, 93, 255, 0.3)',
+                  },
+                  default: {
+                    shadowColor: '#8B5DFF',
+                    shadowOffset: { width: 0, height: 8 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 16,
+                    elevation: 8,
+                  },
+                }),
+              ]}
             >
-              <Text style={{
-                color: '#FFFFFF',
-                fontSize: 17,
-                fontWeight: '600',
-                textAlign: 'center',
-              }}>
-                Next
-              </Text>
+              <Text style={styles.nextButtonText}>Next</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -252,3 +195,112 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#2D2D4A',
+  },
+  gradient: {
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 8,
+    paddingBottom: 24,
+  },
+  logoContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 0,
+  },
+  logo: {
+    fontSize: 40,
+    fontWeight: 'bold',
+    color: 'white',
+    letterSpacing: 2,
+    fontStyle: 'italic',
+  },
+  spacer: {
+    flex: 1,
+  },
+  skipButton: {
+    zIndex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
+  skipText: {
+    fontSize: 17,
+    color: '#FFFFFF',
+    fontWeight: '400',
+  },
+  titleContainer: {
+    paddingHorizontal: 37.5,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    lineHeight: 36,
+    maxWidth: 300,
+    alignSelf: 'center',
+  },
+  illustrationWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    marginTop: -20,
+  },
+  illustrationContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  illustration: {
+    width: '90%',
+    height: '90%',
+  },
+  bottomSection: {
+    paddingHorizontal: 32,
+    paddingBottom: 40,
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
+  },
+  dotActive: {
+    backgroundColor: '#FFFFFF',
+  },
+  dotInactive: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  nextButton: {
+    backgroundColor: '#8B5DFF',
+    paddingVertical: 18,
+    borderRadius: 12,
+  },
+  nextButtonText: {
+    color: '#FFFFFF',
+    fontSize: 17,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+});
