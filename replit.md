@@ -75,6 +75,20 @@ The application requires Supabase environment variables (EXPO_PUBLIC_SUPABASE_UR
 
 # Recent Changes
 
+## October 1, 2025 - Onboarding Screens Implementation
+- Implemented complete 4-screen onboarding flow matching exact design specifications
+- Updated OnboardingScreen.tsx with React Native best practices:
+  - Used useWindowDimensions for responsive sizing
+  - Implemented Platform.select for web-compatible shadow styles (boxShadow on web)
+  - Moved Image resizeMode from style to prop
+  - Refactored to StyleSheet.create for better performance
+- Replaced illustration images with custom-designed shapes:
+  - Screen 1: Purple circular background with dining scene
+  - Screen 2: Beige shape with reviews/5-star rating scene  
+  - Screen 3: Beige shape with business/growth scene
+  - Screen 4: Light blue circular with couple dining scene
+- All 4 screens properly display with JAW logo, Skip button, titles, pagination dots, and Next button
+
 ## October 1, 2025 - Fresh Clone Import Setup
 - Successfully re-imported the JAW Restaurant app from GitHub clone to Replit environment
 - Installed all npm dependencies using --legacy-peer-deps flag (required for Tamagui compatibility)
