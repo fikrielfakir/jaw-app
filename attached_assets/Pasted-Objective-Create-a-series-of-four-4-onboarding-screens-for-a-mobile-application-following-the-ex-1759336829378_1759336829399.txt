@@ -1,0 +1,127 @@
+Objective: Create a series of four (4) onboarding screens for a mobile application, following the exact design and content provided in the reference images (Onboarding.png, Onboarding-1.png, Onboarding-2.png, Onboarding-3.png).
+
+Overall Technical Specifications:
+
+Artboard/Canvas Size: 375px wide x 812px high (Standard iPhone 13 screen size).
+
+Status Bar: A semi-transparent bar at the top, showing the time "10:56" on the left. Use the system font, semi-bold.
+
+Background: A full-screen, slightly blurred background image that suggests the theme of each screen (e.g., a restaurant interior, a social event, a business meeting). The background should have a dark overlay to ensure text readability.
+
+Screen 1: "Discover the perfect vibe"
+1. Top Navigation:
+
+Skip Button:
+
+Position: Top-right corner. x: 311px, y: 60px from the top.
+
+Text: "Skip"
+
+Font: System font, weight: Regular (400), size: 17px.
+
+Color: White (#FFFFFF).
+
+2. Central Content:
+
+Main Heading:
+
+Text: "Discover the perfect vibe for every occasion"
+
+Position: Centered horizontally. y: 450px from the top.
+
+Font: System font, weight: Semi-Bold (600), size: 28px.
+
+Color: White (#FFFFFF).
+
+Alignment: Center-aligned.
+
+Max Width: 300px to prevent text from touching the edges.
+
+3. Bottom Navigation:
+
+Next Button:
+
+Position: Bottom-right corner. x: 311px, y: 734px from the top (or 58px from the bottom).
+
+Text: "Next"
+
+Font: System font, weight: Semi-Bold (600), size: 17px.
+
+Color: White (#FFFFFF).
+
+Screen 2: "Share your moments"
+1. Top Navigation:
+
+Skip Button: Identical to Screen 1. x: 311px, y: 60px.
+
+2. Central Content:
+
+Main Heading:
+
+Text: "Share your moments with reviews, photos, and videos"
+
+Position & Styling: Identical to Screen 1.
+
+3. Bottom Navigation:
+
+Next Button: Identical to Screen 1. x: 311px, y: 734px.
+
+Screen 3: "Grow your business"
+1. Top Navigation:
+
+Skip Button: Identical to previous screens. x: 311px, y: 60px.
+
+2. Central Content:
+
+Main Heading:
+
+Text: "Easily grow and promote all your businesses"
+
+Position & Styling: Identical to Screen 1.
+
+3. Bottom Navigation:
+
+Next Button: Identical to previous screens. x: 311px, y: 734px.
+
+Screen 4: "Book a table"
+1. Top Navigation:
+
+Skip Button: Identical to previous screens. x: 311px, y: 60px.
+
+2. Central Content:
+
+Main Heading:
+
+Text: "Book a table and create"
+
+Position: y: 430px from the top.
+
+Sub-heading Line:
+
+Text: "lasting memories"
+
+Position: y: 475px from the top.
+
+Font & Color: Identical to Screen 1 for both lines.
+
+3. Bottom Navigation:
+
+Next Button: Identical to previous screens. x: 311px, y: 734px.
+
+Additional Global Elements & Instructions:
+Page Indicators: While not visible in the provided screens, it is implied there should be a page indicator (e.g., four dots). Place this at the bottom center, y: 780px. The dot for the current screen should be active (white, filled), while the others are inactive (white with a transparent center, just a stroke).
+
+Background Images: Each screen must have a unique, high-quality, and thematically appropriate background image.
+
+Screen 1: A stylish, ambient restaurant or lounge.
+
+Screen 2: A group of friends sharing a meal or a user taking a photo of their food.
+
+Screen 3: A professional setting, like a laptop on a desk or a person in a meeting.
+
+Screen 4: An elegantly set table in a beautiful restaurant.
+
+Interactivity: The "Skip" button should allow the user to skip the entire onboarding process. The "Next" button should proceed to the subsequent screen. On the final screen (Screen 4), the "Next" button should lead to the app's login or home screen.
+
+Assets: Please provide all final screens as individual PNG files with transparent backgrounds where applicable, or as a single PDF/Zeplin/Fig
+

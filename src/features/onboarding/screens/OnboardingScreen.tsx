@@ -16,7 +16,7 @@ interface OnboardingData {
 const onboardingData: OnboardingData[] = [
   {
     id: 1,
-    title: 'Discover the perfect vibe\nfor every occasion',
+    title: 'Discover the perfect vibe for every occasion',
     image: require('../../../../assets/illustration-dining.png'),
     containerStyle: {
       backgroundColor: '#8B5DFF',
@@ -27,7 +27,7 @@ const onboardingData: OnboardingData[] = [
   },
   {
     id: 2,
-    title: 'Share your moments with\nreviews, photos, and videos',
+    title: 'Share your moments with reviews, photos, and videos',
     image: require('../../../../assets/illustration-reviews.png'),
     containerStyle: {
       backgroundColor: '#F5E6D3',
@@ -38,7 +38,7 @@ const onboardingData: OnboardingData[] = [
   },
   {
     id: 3,
-    title: 'Easily grow and promote all\nyour businesses',
+    title: 'Easily grow and promote all your businesses',
     image: require('../../../../assets/illustration-business.png'),
     containerStyle: {
       backgroundColor: '#F5E6D3',
@@ -49,7 +49,7 @@ const onboardingData: OnboardingData[] = [
   },
   {
     id: 4,
-    title: 'Book a table and create\nlasting memories',
+    title: 'Book a table and create lasting memories',
     image: require('../../../../assets/illustration-booking.png'),
     containerStyle: {
       backgroundColor: '#B8E6FF',
@@ -88,76 +88,90 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
   const currentItem = onboardingData[currentIndex];
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#2D2D4A' }}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       
-      {/* Dark Purple Gradient Background */}
+      {/* Dark Purple/Navy Background - matches design #2D2D4A to #3A3A5A gradient */}
       <LinearGradient
-        colors={['#4A4A6A', '#5B5B7A', '#4A4A6A']}
+        colors={['#2D2D4A', '#3A3A5A', '#2D2D4A']}
         style={{ flex: 1 }}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
       >
         <SafeAreaView style={{ flex: 1 }}>
-          {/* Header */}
+          {/* Header with Logo and Skip Button */}
           <View style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
             paddingHorizontal: 24,
-            paddingTop: 16,
+            paddingTop: 8,
             paddingBottom: 24,
           }}>
-            {/* JAW Logo */}
-            <View style={{ flex: 1 }}>
+            {/* JAW Logo - centered */}
+            <View style={{ 
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              alignItems: 'center',
+              zIndex: 0,
+            }}>
               <Text style={{
-                fontSize: 32,
+                fontSize: 40,
                 fontWeight: 'bold',
                 color: 'white',
-                fontFamily: 'Inter',
-                letterSpacing: 3,
+                letterSpacing: 2,
                 fontStyle: 'italic',
               }}>
                 JAW
               </Text>
             </View>
             
-            {/* Skip Button */}
-            <TouchableOpacity onPress={handleSkip}>
+            {/* Skip Button - positioned at top right (x: 311px from design) */}
+            <View style={{ flex: 1 }} />
+            <TouchableOpacity 
+              onPress={handleSkip}
+              style={{ 
+                zIndex: 1,
+                paddingVertical: 8,
+                paddingHorizontal: 4,
+              }}
+            >
               <Text style={{
-                fontSize: 16,
-                color: 'white',
-                fontFamily: 'Inter',
-                opacity: 0.9,
+                fontSize: 17,
+                color: '#FFFFFF',
+                fontWeight: '400',
               }}>
                 Skip
               </Text>
             </TouchableOpacity>
           </View>
 
-          {/* Title */}
+          {/* Title - positioned at y: 450px from design (approximated with flex) */}
           <View style={{
-            paddingHorizontal: 24,
-            marginBottom: 40,
+            paddingHorizontal: 37.5, // (375 - 300) / 2 for max-width: 300px centered
+            marginTop: height * 0.15, // Position title in upper-middle area
           }}>
             <Text style={{
               fontSize: 28,
               fontWeight: '600',
-              color: 'white',
+              color: '#FFFFFF',
               textAlign: 'center',
               lineHeight: 36,
-              fontFamily: 'Inter',
+              maxWidth: 300,
+              alignSelf: 'center',
             }}>
               {currentItem.title}
             </Text>
           </View>
 
-          {/* Illustration Container */}
+          {/* Illustration Container - centered */}
           <View style={{
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
             paddingHorizontal: 24,
+            marginTop: -20,
           }}>
             <View style={[
               currentItem.containerStyle,
@@ -182,16 +196,16 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
             </View>
           </View>
 
-          {/* Bottom Section */}
+          {/* Bottom Section - positioned at bottom */}
           <View style={{
-            paddingHorizontal: 24,
-            paddingBottom: 50,
+            paddingHorizontal: 32,
+            paddingBottom: 40,
           }}>
-            {/* Pagination Dots */}
+            {/* Pagination Dots - y: 780px from design (near bottom) */}
             <View style={{
               flexDirection: 'row',
               justifyContent: 'center',
-              marginBottom: 32,
+              marginBottom: 24,
             }}>
               {onboardingData.map((_, index) => (
                 <View
@@ -200,14 +214,16 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
                     width: 8,
                     height: 8,
                     borderRadius: 4,
-                    backgroundColor: index === currentIndex ? 'white' : 'rgba(255, 255, 255, 0.4)',
+                    backgroundColor: index === currentIndex ? '#FFFFFF' : 'transparent',
+                    borderWidth: index === currentIndex ? 0 : 1,
+                    borderColor: index === currentIndex ? 'transparent' : 'rgba(255, 255, 255, 0.5)',
                     marginHorizontal: 4,
                   }}
                 />
               ))}
             </View>
 
-            {/* Next Button */}
+            {/* Next Button - positioned at bottom (y: 734px from design) */}
             <TouchableOpacity
               onPress={handleNext}
               style={{
@@ -222,13 +238,12 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
               }}
             >
               <Text style={{
-                color: 'white',
-                fontSize: 18,
+                color: '#FFFFFF',
+                fontSize: 17,
                 fontWeight: '600',
                 textAlign: 'center',
-                fontFamily: 'Inter',
               }}>
-                {currentIndex === onboardingData.length - 1 ? 'Get Started' : 'Next'}
+                Next
               </Text>
             </TouchableOpacity>
           </View>
