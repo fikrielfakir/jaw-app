@@ -53,7 +53,9 @@ Implements row-level security through Supabase with user type-based access contr
 - **Zustand**: Lightweight state management library
 - **AsyncStorage**: Local storage for authentication persistence
 
-## UI Framework
+## UI Framework & Styling
+- **NativeWind v4**: Tailwind CSS for React Native - modern utility-first styling approach
+- **Tailwind CSS v3**: CSS framework powering NativeWind
 - **Gluestack UI**: Component library for consistent design system
 - **Expo Vector Icons**: Icon library
 - **React Native SVG**: Vector graphics support
@@ -75,6 +77,18 @@ The application requires Supabase environment variables (EXPO_PUBLIC_SUPABASE_UR
 
 # Recent Changes
 
+## October 1, 2025 - NativeWind Migration (Modern Styling)
+- **Modernized styling approach** from StyleSheet to NativeWind (Tailwind CSS for React Native)
+- Successfully migrated OnboardingScreen to use className utility syntax
+- Installed and configured NativeWind v4 with Tailwind CSS v3
+- Updated Babel and Metro configurations for NativeWind support
+- Added TypeScript types for className IntelliSense
+- Created global.css with Tailwind directives
+- **Visual design preserved exactly** - no regressions or UI changes
+- Code is now cleaner and more maintainable with Tailwind utilities
+- Gradient colors maintained: dark purple (#453063 at 86% opacity) to black (#000000)
+- Architecture review: PASS - Migration well-executed with improved code quality
+
 ## October 1, 2025 - Fresh GitHub Clone Import
 - Successfully imported JAW Restaurant app from fresh GitHub clone to Replit environment
 - Installed all npm dependencies using --legacy-peer-deps flag (required for Tamagui and React Native compatibility)
@@ -90,5 +104,5 @@ The application requires Supabase environment variables (EXPO_PUBLIC_SUPABASE_UR
 
 ## Previous Onboarding Implementation
 - Implemented complete 4-screen onboarding flow with React Native best practices
-- Features purple circular background with dining scene, pagination dots, and navigation
-- Uses useWindowDimensions for responsive sizing and Platform.select for web compatibility
+- Features dark purple to black gradient background with dining scene illustrations
+- Uses useWindowDimensions for responsive sizing and modern React Native patterns

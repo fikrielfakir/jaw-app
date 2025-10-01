@@ -1,12 +1,6 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ImageBackground,
-  SafeAreaView,
-} from 'react-native';
-import { Button } from '@/components/themed/Button';
+import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface WelcomeScreenProps {
   onSelectRole: (role: 'diner' | 'owner') => void;
@@ -16,80 +10,58 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   onSelectRole,
 }) => {
   return (
-    <ImageBackground
-      source={{ uri: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80' }}
-      style={styles.background}
-    >
-      <SafeAreaView style={styles.container}>
-        <View style={styles.overlay}>
-          <View style={styles.content}>
-            <Text style={styles.title}>Welcome to JAW</Text>
-            <Text style={styles.subtitle}>
-              Your complete restaurant discovery platform
-            </Text>
+    <View className="flex-1">
+      {/* Dark Purple Gradient Background - same as onboarding */}
+      <LinearGradient
+        colors={['rgba(69, 48, 99, 0.86)', '#000000']}
+        className="flex-1"
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+      >
+        <SafeAreaView className="flex-1">
+          <View className="flex-1 justify-center items-center px-6">
+            <View className="w-full max-w-[400px]">
+              {/* JAW Logo */}
+              <Text className="text-[60px] font-bold text-white text-center mb-6 tracking-[2px] italic">
+                JAW
+              </Text>
 
-            <View style={styles.buttonContainer}>
-              <Button
-                onPress={() => onSelectRole('diner')}
-                variant="primary"
-                size="large"
-                style={styles.button}
-              >
-                I'm looking for restaurants
-              </Button>
-              
-              <Button
-                onPress={() => onSelectRole('owner')}
-                variant="outline"
-                size="large"
-                style={styles.button}
-              >
-                I'm a restaurant owner
-              </Button>
+              {/* Welcome Title */}
+              <Text className="text-[32px] font-bold text-white text-center mb-3">
+                Welcome to JAW
+              </Text>
+
+              {/* Subtitle */}
+              <Text className="text-[17px] text-white/80 text-center mb-12">
+                Join our community now
+              </Text>
+
+              {/* Buttons */}
+              <View className="gap-4">
+                {/* Owner Button - Purple */}
+                <TouchableOpacity
+                  onPress={() => onSelectRole('owner')}
+                  className="bg-[#8B5DFF] py-[18px] rounded-xl"
+                >
+                  <Text className="text-white text-[17px] font-semibold text-center">
+                    I'm an Owner
+                  </Text>
+                </TouchableOpacity>
+
+                {/* User Button - White */}
+                <TouchableOpacity
+                  onPress={() => onSelectRole('diner')}
+                  className="bg-white py-[18px] rounded-xl"
+                >
+                  <Text className="text-[#2D2D4A] text-[17px] font-semibold text-center">
+                    I'm a user
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </SafeAreaView>
-    </ImageBackground>
+        </SafeAreaView>
+      </LinearGradient>
+    </View>
   );
 };
-
-const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  content: {
-    width: '100%',
-    maxWidth: 400,
-  },
-  title: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: 40,
-    opacity: 0.9,
-  },
-  buttonContainer: {
-    gap: 16,
-  },
-  button: {
-    width: '100%',
-  },
-});
