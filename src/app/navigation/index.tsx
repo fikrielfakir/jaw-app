@@ -20,6 +20,10 @@ export const RootNavigator = () => {
     setSelectedRole(role);
   };
 
+  const handleBackToWelcome = () => {
+    setSelectedRole(null);
+  };
+
   const handleOnboardingComplete = () => {
     // Navigation will automatically update when hasCompletedOnboarding changes
   };
@@ -52,7 +56,7 @@ export const RootNavigator = () => {
   if (!isAuthenticated && selectedRole) {
     return (
       <NavigationContainer>
-        <AuthNavigator userType={selectedRole} />
+        <AuthNavigator userType={selectedRole} onBackToWelcome={handleBackToWelcome} />
       </NavigationContainer>
     );
   }

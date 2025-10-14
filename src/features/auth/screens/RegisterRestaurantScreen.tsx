@@ -12,9 +12,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 interface RegisterRestaurantScreenProps {
   navigation?: any;
+  onBackToWelcome?: () => void;
 }
 
-export const RegisterRestaurantScreen: React.FC<RegisterRestaurantScreenProps> = ({ navigation }) => {
+export const RegisterRestaurantScreen: React.FC<RegisterRestaurantScreenProps> = ({ navigation, onBackToWelcome }) => {
   const [restaurantName, setRestaurantName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -43,7 +44,13 @@ export const RegisterRestaurantScreen: React.FC<RegisterRestaurantScreenProps> =
               {/* Header with Back Button */}
               <View className="flex-row items-center mb-8">
                 <TouchableOpacity 
-                  onPress={() => navigation?.goBack()}
+                  onPress={() => {
+                    if (onBackToWelcome) {
+                      onBackToWelcome();
+                    } else {
+                      navigation?.goBack();
+                    }
+                  }}
                   className="mr-4"
                 >
                   <Text className="text-white text-2xl">←</Text>

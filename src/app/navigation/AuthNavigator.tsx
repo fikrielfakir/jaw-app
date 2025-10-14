@@ -21,9 +21,10 @@ const RegisterScreen = () => (
 
 interface AuthNavigatorProps {
   userType: 'diner' | 'owner';
+  onBackToWelcome?: () => void;
 }
 
-export const AuthNavigator: React.FC<AuthNavigatorProps> = ({ userType }) => {
+export const AuthNavigator: React.FC<AuthNavigatorProps> = ({ userType, onBackToWelcome }) => {
   return (
     <Stack.Navigator 
       screenOptions={{ headerShown: false }}
@@ -31,7 +32,9 @@ export const AuthNavigator: React.FC<AuthNavigatorProps> = ({ userType }) => {
     >
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen name="RegisterRestaurant" component={RegisterRestaurantScreen} />
+      <Stack.Screen name="RegisterRestaurant">
+        {(props) => <RegisterRestaurantScreen {...props} onBackToWelcome={onBackToWelcome} />}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 };
