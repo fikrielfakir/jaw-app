@@ -1,23 +1,13 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Text, View } from 'react-native';
 import { RegisterRestaurantScreen } from '@/features/auth/screens/RegisterRestaurantScreen';
+import { SignInScreen } from '@/features/auth/screens/SignInScreen';
+import { SignUpScreen } from '@/features/auth/screens/SignUpScreen';
+import { ForgotPasswordScreen } from '@/features/auth/screens/ForgotPasswordScreen';
+import { VerifyEmailScreen } from '@/features/auth/screens/VerifyEmailScreen';
+import { EnterNewPasswordScreen } from '@/features/auth/screens/EnterNewPasswordScreen';
 
 const Stack = createStackNavigator();
-
-// Placeholder Login Screen
-const LoginScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text>Login Screen</Text>
-  </View>
-);
-
-// Placeholder Register Screen for Diners
-const RegisterScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text>Register Screen (Diner)</Text>
-  </View>
-);
 
 interface AuthNavigatorProps {
   userType: 'diner' | 'owner';
@@ -28,10 +18,70 @@ export const AuthNavigator: React.FC<AuthNavigatorProps> = ({ userType, onBackTo
   return (
     <Stack.Navigator 
       screenOptions={{ headerShown: false }}
-      initialRouteName={userType === 'owner' ? 'RegisterRestaurant' : 'Login'}
+      initialRouteName={userType === 'owner' ? 'RegisterRestaurant' : 'SignIn'}
     >
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
+      {/* Sign In Screen */}
+      <Stack.Screen name="SignIn">
+        {(props) => (
+          <SignInScreen 
+            {...props} 
+            onForgotPassword={() => props.navigation.navigate('ForgotPassword')}
+            onSignUp={() => props.navigation.navigate('SignUp')}
+          />
+        )}
+      </Stack.Screen>
+
+      {/* Sign Up Screen */}
+      <Stack.Screen name="SignUp">
+        {(props) => (
+          <SignUpScreen 
+            {...props} 
+            onSignIn={() => props.navigation.navigate('SignIn')}
+          />
+        )}
+      </Stack.Screen>
+
+      {/* Forgot Password Flow */}
+      <Stack.Screen name="ForgotPassword">
+        {(props) => (
+          <ForgotPasswordScreen 
+            {...props} 
+            onSubmit={(email) => {
+              console.log('Forgot password for:', email);
+              props.navigation.navigate('VerifyEmail');
+            }}
+            onBackToSignIn={() => props.navigation.navigate('SignIn')}
+          />
+        )}
+      </Stack.Screen>
+
+      <Stack.Screen name="VerifyEmail">
+        {(props) => (
+          <VerifyEmailScreen 
+            {...props} 
+            onVerify={(code) => {
+              console.log('Verification code:', code);
+              props.navigation.navigate('EnterNewPassword');
+            }}
+            onResendCode={() => console.log('Resending code...')}
+          />
+        )}
+      </Stack.Screen>
+
+      <Stack.Screen name="EnterNewPassword">
+        {(props) => (
+          <EnterNewPasswordScreen 
+            {...props} 
+            onContinue={(newPassword, confirmPassword) => {
+              console.log('New password set');
+              props.navigation.navigate('SignIn');
+            }}
+            onCancel={() => props.navigation.navigate('SignIn')}
+          />
+        )}
+      </Stack.Screen>
+
+      {/* Restaurant Registration */}
       <Stack.Screen name="RegisterRestaurant">
         {(props) => <RegisterRestaurantScreen {...props} onBackToWelcome={onBackToWelcome} />}
       </Stack.Screen>

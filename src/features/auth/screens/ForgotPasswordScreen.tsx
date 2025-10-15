@@ -61,7 +61,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
             {/* Icon */}
             <View className="items-center mb-6">
               <View className="w-24 h-24 bg-white/10 border border-white/20 rounded-3xl items-center justify-center">
-                <Text className="text-5xl">👆</Text>
+                <Text className="text-5xl">🫆</Text>
               </View>
             </View>
 

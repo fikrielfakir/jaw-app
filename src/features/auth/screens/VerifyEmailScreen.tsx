@@ -99,7 +99,9 @@ export const VerifyEmailScreen: React.FC<VerifyEmailScreenProps> = ({
               {code.map((digit, index) => (
                 <TextInput
                   key={index}
-                  ref={(ref) => (inputRefs.current[index] = ref)}
+                  ref={(ref) => {
+                    inputRefs.current[index] = ref;
+                  }}
                   value={digit}
                   onChangeText={(text) => handleChangeText(text, index)}
                   onKeyPress={(e) => handleKeyPress(e, index)}
