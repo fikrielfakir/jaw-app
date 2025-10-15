@@ -57,7 +57,7 @@ Implements row-level security through Supabase with user type-based access contr
 - **NativeWind v4**: Tailwind CSS for React Native - modern utility-first styling approach
 - **Tailwind CSS v3**: CSS framework powering NativeWind
 - **Gluestack UI**: Component library for consistent design system
-- **Expo Vector Icons**: Icon library
+- **Lucide React Native**: Modern icon library with consistent design and tree-shakable imports
 - **React Native SVG**: Vector graphics support
 - **Expo Linear Gradient**: Gradient styling support
 
@@ -77,11 +77,23 @@ The application requires Supabase environment variables (EXPO_PUBLIC_SUPABASE_UR
 
 # Recent Changes
 
+## October 15, 2025 - Lucide Icon Migration
+- **Migrated from @expo/vector-icons to lucide-react-native** for all icon usage across the application
+- **Avatar Component**: Updated to use Lucide's User and Pencil icons
+- **Navigation Icons**: Added tab bar icons to both UserNavigator (Home, Calendar, UserCircle) and OwnerNavigator (LayoutDashboard, Calendar, Store)
+- **Auth Screen Icons**: Replaced all emoji icons with proper Lucide icons:
+  - Mail, Lock, Eye, EyeOff icons for input fields
+  - ArrowLeft for back navigation
+  - KeyRound for password reset screens
+- Benefits: Consistent icon design, better performance with tree-shaking, more professional appearance
+- All icons properly sized and colored to match the app's design system
+- Architecture review: PASS - Lucide migration functionally correct with no blocking issues
+
 ## October 15, 2025 - Complete Authentication Flow Implementation
 - **Built complete authentication system** with 6 screens matching the design specifications
 - **SignInScreen**: Email/password login with Google/Facebook social login options, remember me checkbox, and forgot password link
 - **SignUpScreen**: User registration with first/last name, email, password fields and social login options
-- **ForgotPasswordScreen**: Password recovery with email input and fingerprint icon (Unicode 🫆 U+1FAC6)
+- **ForgotPasswordScreen**: Password recovery with email input and KeyRound icon from Lucide
 - **VerifyEmailScreen**: 6-digit OTP verification with auto-focus between inputs and resend code functionality
 - **EnterNewPasswordScreen**: New password entry with confirmation and password visibility toggle
 - **RegisterRestaurantScreen**: Full-width scrollable form for restaurant owner registration
