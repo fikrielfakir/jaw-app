@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image, View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { User, Pencil } from 'lucide-react-native';
 import { useTheme } from '@/hooks/useTheme';
 
 interface AvatarProps {
@@ -55,12 +55,12 @@ export const Avatar: React.FC<AvatarProps> = ({
         <Image source={source} style={styles.avatar} />
       ) : (
         <View style={styles.placeholder}>
-          <Ionicons name="person" size={size * 0.5} color={colors.textSecondary} />
+          <User size={size * 0.5} color={colors.textSecondary} />
         </View>
       )}
       {showEditIcon && (
         <View style={styles.editIcon}>
-          <Ionicons name="pencil" size={12} color="#FFFFFF" />
+          <Pencil size={12} color="#FFFFFF" />
         </View>
       )}
     </View>
