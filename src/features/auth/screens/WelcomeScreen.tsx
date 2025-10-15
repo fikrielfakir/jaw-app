@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useAuthStore } from '../../../store/authStore';
 
 interface WelcomeScreenProps {
   onSelectRole: (role: 'diner' | 'owner') => void;
@@ -9,6 +10,21 @@ interface WelcomeScreenProps {
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   onSelectRole,
 }) => {
+  const { setUser } = useAuthStore();
+
+  const handleDemoLogin = (userType: 'diner' | 'owner') => {
+    const demoUser = {
+      id: userType === 'diner' ? 'demo-diner-123' : 'demo-owner-123',
+      email: userType === 'diner' ? 'demo@diner.com' : 'demo@owner.com',
+      fullName: userType === 'diner' ? 'Demo Diner' : 'Demo Owner',
+      userType: userType,
+      avatarUrl: 'https://i.pravatar.cc/100?img=10',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    setUser(demoUser);
+  };
   return (
     <View className="flex-1">
       {/* Dark Purple Gradient Background - same as onboarding */}
@@ -62,6 +78,36 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                     I'm a user
                   </Text>
                 </TouchableOpacity>
+              </View>
+
+              {/* Demo Mode Section */}
+              <View className="mt-8 pt-8 border-t border-white/10">
+                <Text className="text-white text-lg font-semibold text-center mb-2">
+                  Try Demo Mode
+                </Text>
+                <Text className="text-white/60 text-sm text-center mb-4">
+                  Explore the app without signing up
+                </Text>
+                
+                <View className="flex-row gap-3">
+                  <TouchableOpacity
+                    onPress={() => handleDemoLogin('diner')}
+                    className="flex-1 bg-[#8B5DFF]/20 py-4 rounded-xl border border-[#8B5DFF]"
+                  >
+                    <Text className="text-[#8B5DFF] text-base font-semibold text-center">
+                      Demo as Diner
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => handleDemoLogin('owner')}
+                    className="flex-1 bg-[#8B5DFF]/20 py-4 rounded-xl border border-[#8B5DFF]"
+                  >
+                    <Text className="text-[#8B5DFF] text-base font-semibold text-center">
+                      Demo as Owner
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           </View>
