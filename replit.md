@@ -77,6 +77,25 @@ The application requires Supabase environment variables (EXPO_PUBLIC_SUPABASE_UR
 
 # Recent Changes
 
+## October 15, 2025 - Main App Screens Implementation
+- **Built complete post-authentication user experience** with 8 new screens
+- **User Screens (Diner Role)**:
+  - **HomeScreen**: Category selection with circular layout featuring Cafe, Morocco Way, Fine Dining, Dance, Loung & Pub, and Chiringuito categories with purple gradient background
+  - **DiscoverScreen**: Restaurant search and discovery with category filters, search bar, QR code scanner, and restaurant card listings
+  - **VenueDetailsScreen**: Complete restaurant details with tabbed interface (Overview, Menu, Bookings), image gallery, cuisine tags, location map placeholder, contact information
+  - **BookingScreen**: Modal-based reservation system with guest counter, interactive calendar, time slot selection, and booking confirmation
+  - **ReviewsScreen**: Reviews feed with star ratings, user comments, and inline review submission with star rating and text input
+  - **RestaurantCard Component**: Reusable card component displaying restaurant images, ratings, location, and favorite toggle
+- **Owner Screens (Restaurant Owner Role)**:
+  - **FeedScreen**: Social feed with Best Chef horizontal carousel, restaurant posts with engagement stats (likes, comments, ratings), and quick action menu (Start Live, Add Story, Add PIN)
+- **Navigation Integration**: 
+  - Updated UserNavigator with 5-tab bottom navigation (Home, Search, Favorites, Bookings, Profile)
+  - Implemented stack navigation for Home tab to handle screen transitions (Home → Discover → VenueDetails → Booking/Reviews)
+  - Updated OwnerNavigator with 5-tab layout (Feed, Discover, Add, Bookings, Profile)
+  - All tabs styled with purple accent color (#8B5DFF) and dark theme
+- **Design System**: Consistent dark theme implementation across all screens with purple accents, proper spacing, and responsive layouts
+- Architecture review: All screens functionally complete with proper navigation flow
+
 ## October 15, 2025 - Lucide Icon Migration
 - **Migrated from @expo/vector-icons to lucide-react-native** for all icon usage across the application
 - **Avatar Component**: Updated to use Lucide's User and Pencil icons
