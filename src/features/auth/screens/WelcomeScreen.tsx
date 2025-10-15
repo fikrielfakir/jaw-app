@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, TouchableOpacity, SafeAreaView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 interface WelcomeScreenProps {
@@ -22,9 +22,14 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           <View className="flex-1 justify-center items-center px-6">
             <View className="w-full max-w-[400px]">
               {/* JAW Logo */}
-              <Text className="text-[60px] font-bold text-white text-center mb-6 tracking-[2px] italic">
-                JAW
-              </Text>
+              <View className="items-center mb-6">
+                <Image
+                  source={require('../../../../attached_assets/Profile Restaurent Booking_1760530725671.png')}
+                  className="h-[60px]"
+                  resizeMode="contain"
+                  style={{ width: 150 }}
+                />
+              </View>
 
               {/* Welcome Title */}
               <Text className="text-[32px] font-bold text-white text-center mb-3">

@@ -10,6 +10,7 @@ import {
   Dimensions,
   Platform,
   KeyboardAvoidingView,
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -69,12 +70,14 @@ export const RegisterRestaurantScreen: React.FC<RegisterRestaurantScreenProps> =
               </View>
 
               {/* JAW Logo */}
-              <Text 
-                className="font-bold text-white text-center tracking-[2px] italic mb-2"
-                style={{ fontSize: isSmallScreen ? 24 : 28 }}
-              >
-                JAW
-              </Text>
+              <View className="items-center mb-2">
+                <Image
+                  source={require('../../../../attached_assets/Profile Restaurent Booking_1760530725671.png')}
+                  className="h-[35px]"
+                  resizeMode="contain"
+                  style={{ width: 90 }}
+                />
+              </View>
 
               {/* Title */}
               <Text 
