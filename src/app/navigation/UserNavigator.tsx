@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, View } from 'react-native';
+import { Home, Calendar, UserCircle } from 'lucide-react-native';
 
 const Tab = createBottomTabNavigator();
 
@@ -25,10 +26,33 @@ const ProfileScreen = () => (
 
 export const UserNavigator = () => {
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Bookings" component={BookingsScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+    <Tab.Navigator
+      screenOptions={{
+        tabBarActiveTintColor: '#8B5DFF',
+        tabBarInactiveTintColor: '#999',
+      }}
+    >
+      <Tab.Screen 
+        name="Home" 
+        component={HomeScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />
+        }}
+      />
+      <Tab.Screen 
+        name="Bookings" 
+        component={BookingsScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => <Calendar size={size} color={color} />
+        }}
+      />
+      <Tab.Screen 
+        name="Profile" 
+        component={ProfileScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => <UserCircle size={size} color={color} />
+        }}
+      />
     </Tab.Navigator>
   );
 };
