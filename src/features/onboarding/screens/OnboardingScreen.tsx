@@ -102,9 +102,12 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
           <View className="flex-row justify-between items-center px-6 pt-2 pb-6">
             {/* JAW Logo - centered */}
             <View className="absolute left-0 right-0 items-center z-0">
-              <Text className="text-[40px] font-bold text-white tracking-[2px] italic">
-                JAW
-              </Text>
+              <Image
+                source={require('../../../../attached_assets/Profile Restaurent Booking_1760530725671.png')}
+                className="h-[40px]"
+                resizeMode="contain"
+                style={{ width: 100 }}
+              />
             </View>
             
             {/* Skip Button - positioned at top right */}
