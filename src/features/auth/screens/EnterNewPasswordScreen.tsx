@@ -9,6 +9,7 @@ import {
   Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react-native';
 
 interface EnterNewPasswordScreenProps {
   navigation?: any;
@@ -48,7 +49,7 @@ export const EnterNewPasswordScreen: React.FC<EnterNewPasswordScreenProps> = ({
               onPress={() => navigation?.goBack()}
               className="pt-3 pb-6"
             >
-              <Text className="text-white text-2xl">←</Text>
+              <ArrowLeft size={28} color="#FFFFFF" />
             </TouchableOpacity>
 
             {/* JAW Logo */}
@@ -64,7 +65,7 @@ export const EnterNewPasswordScreen: React.FC<EnterNewPasswordScreenProps> = ({
             {/* Icon */}
             <View className="items-center mb-6">
               <View className="w-24 h-24 bg-white/10 border border-white/20 rounded-3xl items-center justify-center">
-                <Text className="text-5xl">🔒</Text>
+                <Lock size={48} color="rgba(255, 255, 255, 0.8)" />
               </View>
             </View>
 
@@ -76,7 +77,7 @@ export const EnterNewPasswordScreen: React.FC<EnterNewPasswordScreenProps> = ({
             {/* New Password Field */}
             <Text className="text-white/70 text-sm mb-3">New Password</Text>
             <View className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 mb-4 flex-row items-center">
-              <Text className="text-white/40 mr-3">🔒</Text>
+              <Lock size={20} color="rgba(255, 255, 255, 0.4)" style={{ marginRight: 12 }} />
               <TextInput
                 value={newPassword}
                 onChangeText={setNewPassword}
@@ -87,14 +88,18 @@ export const EnterNewPasswordScreen: React.FC<EnterNewPasswordScreenProps> = ({
                 style={{ fontSize: 15 }}
               />
               <TouchableOpacity onPress={() => setShowNewPassword(!showNewPassword)}>
-                <Text className="text-white/40 text-lg">{showNewPassword ? '👁' : '👁‍🗨'}</Text>
+                {showNewPassword ? (
+                  <Eye size={20} color="rgba(255, 255, 255, 0.4)" />
+                ) : (
+                  <EyeOff size={20} color="rgba(255, 255, 255, 0.4)" />
+                )}
               </TouchableOpacity>
             </View>
 
             {/* Confirm Password Field */}
             <Text className="text-white/70 text-sm mb-3">Confirm Password</Text>
             <View className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 mb-8 flex-row items-center">
-              <Text className="text-white/40 mr-3">🔒</Text>
+              <Lock size={20} color="rgba(255, 255, 255, 0.4)" style={{ marginRight: 12 }} />
               <TextInput
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
@@ -105,7 +110,11 @@ export const EnterNewPasswordScreen: React.FC<EnterNewPasswordScreenProps> = ({
                 style={{ fontSize: 15 }}
               />
               <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                <Text className="text-white/40 text-lg">{showConfirmPassword ? '👁' : '👁‍🗨'}</Text>
+                {showConfirmPassword ? (
+                  <Eye size={20} color="rgba(255, 255, 255, 0.4)" />
+                ) : (
+                  <EyeOff size={20} color="rgba(255, 255, 255, 0.4)" />
+                )}
               </TouchableOpacity>
             </View>
 

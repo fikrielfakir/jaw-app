@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
 
 interface SignInScreenProps {
   navigation?: any;
@@ -106,7 +107,7 @@ export const SignInScreen: React.FC<SignInScreenProps> = ({ navigation, onForgot
                 {/* Email Field */}
                 <Text className="text-white text-sm mb-2">Email</Text>
                 <View className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 mb-4 flex-row items-center">
-                  <Text className="text-white/40 mr-3">✉</Text>
+                  <Mail size={20} color="rgba(255, 255, 255, 0.4)" style={{ marginRight: 12 }} />
                   <TextInput
                     value={email}
                     onChangeText={setEmail}
@@ -122,7 +123,7 @@ export const SignInScreen: React.FC<SignInScreenProps> = ({ navigation, onForgot
                 {/* Password Field */}
                 <Text className="text-white text-sm mb-2">Password</Text>
                 <View className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 mb-2 flex-row items-center">
-                  <Text className="text-white/40 mr-3">🔒</Text>
+                  <Lock size={20} color="rgba(255, 255, 255, 0.4)" style={{ marginRight: 12 }} />
                   <TextInput
                     value={password}
                     onChangeText={setPassword}
@@ -133,7 +134,11 @@ export const SignInScreen: React.FC<SignInScreenProps> = ({ navigation, onForgot
                     style={{ fontSize: 15 }}
                   />
                   <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                    <Text className="text-white/40 text-lg">{showPassword ? '👁' : '👁‍🗨'}</Text>
+                    {showPassword ? (
+                      <Eye size={20} color="rgba(255, 255, 255, 0.4)" />
+                    ) : (
+                      <EyeOff size={20} color="rgba(255, 255, 255, 0.4)" />
+                    )}
                   </TouchableOpacity>
                 </View>
 

@@ -9,6 +9,7 @@ import {
   Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Mail, ArrowLeft } from 'lucide-react-native';
 
 interface VerifyEmailScreenProps {
   navigation?: any;
@@ -64,7 +65,7 @@ export const VerifyEmailScreen: React.FC<VerifyEmailScreenProps> = ({
               onPress={() => navigation?.goBack()}
               className="pt-3 pb-6"
             >
-              <Text className="text-white text-2xl">←</Text>
+              <ArrowLeft size={28} color="#FFFFFF" />
             </TouchableOpacity>
 
             {/* JAW Logo */}
@@ -80,7 +81,7 @@ export const VerifyEmailScreen: React.FC<VerifyEmailScreenProps> = ({
             {/* Icon */}
             <View className="items-center mb-6">
               <View className="w-24 h-24 bg-white/10 border border-white/20 rounded-3xl items-center justify-center">
-                <Text className="text-5xl">✉️</Text>
+                <Mail size={48} color="rgba(255, 255, 255, 0.8)" />
               </View>
             </View>
 

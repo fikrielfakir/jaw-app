@@ -9,6 +9,7 @@ import {
   Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Mail, KeyRound, ArrowLeft } from 'lucide-react-native';
 
 interface ForgotPasswordScreenProps {
   navigation?: any;
@@ -45,7 +46,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
               onPress={onBackToSignIn || (() => navigation?.goBack())}
               className="pt-3 pb-6"
             >
-              <Text className="text-white text-2xl">←</Text>
+              <ArrowLeft size={28} color="#FFFFFF" />
             </TouchableOpacity>
 
             {/* JAW Logo */}
@@ -61,7 +62,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
             {/* Icon */}
             <View className="items-center mb-6">
               <View className="w-24 h-24 bg-white/10 border border-white/20 rounded-3xl items-center justify-center">
-                <Text className="text-5xl">🫆</Text>
+                <KeyRound size={48} color="rgba(255, 255, 255, 0.8)" />
               </View>
             </View>
 
@@ -73,7 +74,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
             {/* Email Field */}
             <Text className="text-white text-sm mb-3">Email</Text>
             <View className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 mb-6 flex-row items-center">
-              <Text className="text-white/40 mr-3">✉</Text>
+              <Mail size={20} color="rgba(255, 255, 255, 0.4)" style={{ marginRight: 12 }} />
               <TextInput
                 value={email}
                 onChangeText={setEmail}
@@ -99,10 +100,11 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
             {/* Back to Sign In Button */}
             <TouchableOpacity
               onPress={onBackToSignIn || (() => navigation?.goBack())}
-              className="bg-white/10 border border-white/20 rounded-xl py-4"
+              className="bg-white/10 border border-white/20 rounded-xl py-4 flex-row items-center justify-center"
             >
+              <ArrowLeft size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
               <Text className="text-white text-base text-center">
-                ← back to Sign In
+                back to Sign In
               </Text>
             </TouchableOpacity>
           </View>
