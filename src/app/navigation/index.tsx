@@ -48,7 +48,7 @@ export const RootNavigator = () => {
           <Stack.Screen name="Welcome">
             {() => <WelcomeScreen onSelectRole={handleRoleSelection} />}
           </Stack.Screen>
-        </Stack.Navigator>
+        </Stack.Navigator>    
       </NavigationContainer>
     );
   }

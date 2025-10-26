@@ -10,8 +10,10 @@ import {
   Platform,
   KeyboardAvoidingView,
   Image,
+  Modal,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { ChevronLeft } from 'lucide-react-native';
 
 interface RegisterRestaurantScreenProps {
   navigation?: any;
@@ -26,6 +28,9 @@ export const RegisterRestaurantScreen: React.FC<RegisterRestaurantScreenProps> =
   const [type, setType] = useState('');
   const [cuisineType, setCuisineType] = useState('');
   const [description, setDescription] = useState('');
+  const [showTypeDropdown, setShowTypeDropdown] = useState(false);
+
+  const restaurantTypes = ['Restaurant', 'Cheringito', 'Cafe', 'Bar', 'Fast Food'];
 
   const handleSubmit = () => {
     console.log('Submitting restaurant registration...');
@@ -46,8 +51,8 @@ export const RegisterRestaurantScreen: React.FC<RegisterRestaurantScreenProps> =
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             className="flex-1"
           >
-            {/* Header with Back Button */}
-            <View className="flex-row items-center pt-3 pb-3 px-5">
+            {/* Header with Back Button and Logo */}
+            <View className="flex-row items-center justify-between pt-3 pb-3 px-5">
               <TouchableOpacity 
                 onPress={() => {
                   if (onBackToWelcome) {
@@ -56,24 +61,26 @@ export const RegisterRestaurantScreen: React.FC<RegisterRestaurantScreenProps> =
                     navigation?.goBack();
                   }
                 }}
-                className="p-2 -ml-2"
+                className="bg-white/10 p-2 rounded-lg active:bg-white/20"
+                activeOpacity={0.7}
               >
-                <Text className="text-white text-2xl">←</Text>
+                <ChevronLeft color="white" size={24} />
               </TouchableOpacity>
-            </View>
 
-            {/* JAW Logo */}
-            <View className="items-center mb-4">
+              {/* JAW Logo */}
               <Image
                 source={require('../../../../attached_assets/Profile Restaurent Booking_1760530725671.png')}
                 className="h-[40px]"
                 resizeMode="contain"
                 style={{ width: 100 }}
               />
+
+              {/* Spacer for alignment */}
+              <View style={{ width: 40 }} />
             </View>
 
             {/* Title */}
-            <Text className="text-2xl font-bold text-white text-center mb-2 px-5">
+            <Text className="text-2xl font-bold text-white text-center mb-2 px-5 mt-4">
               Register Restaurant
             </Text>
 
@@ -148,13 +155,66 @@ export const RegisterRestaurantScreen: React.FC<RegisterRestaurantScreenProps> =
                 Type
               </Text>
               <TouchableOpacity 
+                onPress={() => setShowTypeDropdown(true)}
                 className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 mb-4 flex-row justify-between items-center"
               >
-                <Text className="text-white/40" style={{ fontSize: 15 }}>
+                <Text className={type ? "text-white" : "text-white/40"} style={{ fontSize: 15 }}>
                   {type || 'Select Type'}
                 </Text>
                 <Text className="text-white/40" style={{ fontSize: 14 }}>▼</Text>
               </TouchableOpacity>
+
+              {/* Bottom Sheet Modal */}
+              <Modal
+                visible={showTypeDropdown}
+                transparent={true}
+                animationType="slide"
+                onRequestClose={() => setShowTypeDropdown(false)}
+              >
+                <TouchableOpacity 
+                  activeOpacity={1}
+                  onPress={() => setShowTypeDropdown(false)}
+                  className="flex-1 bg-black/50"
+                >
+                  <View className="flex-1 justify-end">
+                    <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
+                      <View className="bg-[#1a1a2e] rounded-t-3xl pt-2 pb-8">
+                        {/* Drag Handle */}
+                        <View className="items-center py-3">
+                          <View className="w-12 h-1 bg-white/30 rounded-full" />
+                        </View>
+                        
+                        {/* Title */}
+                        <Text className="text-white text-xl font-semibold text-center mb-4">
+                          Select Type
+                        </Text>
+                        
+                        {/* Options */}
+                        {restaurantTypes.map((restaurantType, index) => (
+                          <TouchableOpacity
+                            key={index}
+                            onPress={() => {
+                              setType(restaurantType);
+                              setShowTypeDropdown(false);
+                            }}
+                            className="px-6 py-4 border-b border-white/5"
+                            style={{ 
+                              borderBottomWidth: index === restaurantTypes.length - 1 ? 0 : 1 
+                            }}
+                          >
+                            <Text 
+                              className={type === restaurantType ? "text-[#8B5DFF] font-semibold" : "text-white/70"}
+                              style={{ fontSize: 16, textAlign: 'center' }}
+                            >
+                              {restaurantType}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                </TouchableOpacity>
+              </Modal>
 
               {/* Cuisine Type */}
               <Text className="text-white text-sm mb-2">
