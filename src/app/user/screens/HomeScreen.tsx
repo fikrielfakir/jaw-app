@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, ViewStyle, StatusBar } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image, ViewStyle, StatusBar, Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SlidersHorizontal, MapPin, Home, Search, Heart, Calendar, User } from 'lucide-react-native';
@@ -8,37 +8,37 @@ const categories = [
   { 
     id: 'cafe', 
     name: 'Cafe', 
-    image: require('../../../../attached_assets/Group 160_1761523631030.png'),
+    image: require('../../../../attached_assets/Ellipse 38_1761524812701.png'),
     position: { top: 50, left: '50%', marginLeft: -65 }
   },
   { 
-    id: 'morocco', 
-    name: 'Morocco Way', 
-    image: require('../../../../attached_assets/Group 165_1761523631033.png'),
+    id: 'outdoor-dining', 
+    name: 'Outdoor Dining', 
+    image: require('../../../../attached_assets/Ellipse 39_1761524812702.png'),
     position: { top: 170, left: '8%' }
   },
   { 
-    id: 'fine-dining', 
-    name: 'Fine Dining', 
-    image: require('../../../../attached_assets/Group 161_1761523631031.png'),
+    id: 'celebration', 
+    name: 'Celebration', 
+    image: require('../../../../attached_assets/Ellipse 40_1761524812703.png'),
     position: { top: 170, right: '8%' }
   },
   { 
-    id: 'dance', 
-    name: 'Dance', 
-    image: require('../../../../attached_assets/Group 164_1761523631032.png'),
+    id: 'bar', 
+    name: 'Bar', 
+    image: require('../../../../attached_assets/Ellipse 41_1761524812704.png'),
     position: { bottom: 140, left: '8%' }
   },
   { 
     id: 'lounge', 
-    name: 'Loung & Pub', 
-    image: require('../../../../attached_assets/Group 162_1761523631031.png'),
+    name: 'Lounge & Pub', 
+    image: require('../../../../attached_assets/Ellipse 42_1761524812705.png'),
     position: { bottom: 20, right: '8%' }
   },
   { 
-    id: 'chiringuito', 
-    name: 'Chiringuito', 
-    image: require('../../../../attached_assets/Group 163_1761523631032.png'),
+    id: 'dining', 
+    name: 'Fine Dining', 
+    image: require('../../../../attached_assets/Ellipse 43_1761524812705.png'),
     position: { bottom: 20, left: '50%', marginLeft: -65 }
   },
 ];
@@ -46,6 +46,22 @@ const categories = [
 export const HomeScreen = () => {
   const navigation = useNavigation<any>();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 10000,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, []);
+
+  const spin = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
 
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId);
@@ -82,9 +98,12 @@ export const HomeScreen = () => {
 
         {/* Categories Container */}
         <View style={styles.categoriesContainer}>
-          <Image 
+          <Animated.Image 
             source={require('../../../../attached_assets/Vector_1761523631033.png')}
-            style={styles.bottleDecoration}
+            style={[
+              styles.bottleDecoration,
+              { transform: [{ rotate: spin }] }
+            ]}
             resizeMode="contain"
           />
           
@@ -97,15 +116,21 @@ export const HomeScreen = () => {
                   position: 'absolute',
                   ...category.position,
                 } as ViewStyle,
-                selectedCategory === category.id && styles.categorySelected,
               ]}
               onPress={() => handleCategorySelect(category.id)}
             >
-              <Image 
-                source={category.image} 
-                style={styles.categoryImage}
-                resizeMode="contain"
-              />
+              <View style={[
+                styles.categoryShadowWrapper,
+                selectedCategory === category.id && styles.categoryShadowWrapperActive,
+              ]}>
+                <View style={styles.categoryImageWrapper}>
+                  <Image 
+                    source={category.image} 
+                    style={styles.categoryImage}
+                    resizeMode="cover"
+                  />
+                </View>
+              </View>
             </TouchableOpacity>
           ))}
         </View>
@@ -188,11 +213,31 @@ const styles = StyleSheet.create({
   categoryItem: {
     alignItems: 'center',
   },
-  categorySelected: {
-    transform: [{ scale: 1.05 }],
-  },
-  categoryImage: {
+  categoryShadowWrapper: {
     width: 130,
     height: 130,
+    borderRadius: 65,
+  },
+  categoryShadowWrapperActive: {
+    shadowColor: '#8B5CF6',
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.8,
+    shadowRadius: 12,
+    elevation: 12,
+  },
+  categoryImageWrapper: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 65,
+    borderWidth: 3,
+    borderColor: '#8B5CF6',
+    overflow: 'hidden',
+  },
+  categoryImage: {
+    width: '100%',
+    height: '100%',
   },
 });

@@ -28504,7 +28504,7 @@
     },
     "defaultFont": "body",
     "shouldAddPrefersColorThemes": false,
-    "themeClassNameOnRoot": false,
+    "themeClassNameOnRoot": true,
     "shorthands": {
       "ussel": "userSelect",
       "cur": "cursor",
@@ -31118,7 +31118,7 @@
     },
     "settings": {
       "defaultFont": "body",
-      "themeClassNameOnRoot": false,
+      "themeClassNameOnRoot": true,
       "webContainerType": "inline-size"
     },
     "inverseShorthands": {
