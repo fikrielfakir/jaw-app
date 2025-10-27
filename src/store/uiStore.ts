@@ -24,7 +24,7 @@ export const useUIStore = create<UIState>((set) => ({
   activeTab: 'home',
   searchQuery: '',
   selectedCategory: null,
-  hasCompletedOnboarding: false,
+  hasCompletedOnboarding: true,
   toggleTheme: () => set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
   setLanguage: (language) => set({ language }),
   setBottomSheetOpen: (isBottomSheetOpen) => set({ isBottomSheetOpen }),

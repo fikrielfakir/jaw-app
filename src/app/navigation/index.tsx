@@ -28,42 +28,49 @@ export const RootNavigator = () => {
     // Navigation will automatically update when hasCompletedOnboarding changes
   };
 
-  // Show onboarding if not completed
-  if (!hasCompletedOnboarding) {
-    return (
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Onboarding">
-            {() => <OnboardingScreen onComplete={handleOnboardingComplete} />}
-          </Stack.Screen>
-        </Stack.Navigator>
-      </NavigationContainer>
-    );
-  }
-
-  if (!isAuthenticated && !selectedRole) {
-    return (
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Welcome">
-            {() => <WelcomeScreen onSelectRole={handleRoleSelection} />}
-          </Stack.Screen>
-        </Stack.Navigator>    
-      </NavigationContainer>
-    );
-  }
-
-  if (!isAuthenticated && selectedRole) {
-    return (
-      <NavigationContainer>
-        <AuthNavigator userType={selectedRole} onBackToWelcome={handleBackToWelcome} />
-      </NavigationContainer>
-    );
-  }
-
+  // Temporarily show UserNavigator directly for testing
   return (
     <NavigationContainer>
-      {userType === 'diner' ? <UserNavigator /> : <OwnerNavigator />}
+      <UserNavigator />
     </NavigationContainer>
   );
+
+  // // Show onboarding if not completed
+  // if (!hasCompletedOnboarding) {
+  //   return (
+  //     <NavigationContainer>
+  //       <Stack.Navigator screenOptions={{ headerShown: false }}>
+  //         <Stack.Screen name="Onboarding">
+  //           {() => <OnboardingScreen onComplete={handleOnboardingComplete} />}
+  //         </Stack.Screen>
+  //       </Stack.Navigator>
+  //     </NavigationContainer>
+  //   );
+  // }
+
+  // if (!isAuthenticated && !selectedRole) {
+  //   return (
+  //     <NavigationContainer>
+  //       <Stack.Navigator screenOptions={{ headerShown: false }}>
+  //         <Stack.Screen name="Welcome">
+  //           {() => <WelcomeScreen onSelectRole={handleRoleSelection} />}
+  //         </Stack.Screen>
+  //       </Stack.Navigator>    
+  //     </NavigationContainer>
+  //   );
+  // }
+
+  // if (!isAuthenticated && selectedRole) {
+  //   return (
+  //     <NavigationContainer>
+  //       <AuthNavigator userType={selectedRole} onBackToWelcome={handleBackToWelcome} />
+  //     </NavigationContainer>
+  //   );
+  // }
+
+  // return (
+  //   <NavigationContainer>
+  //     {userType === 'diner' ? <UserNavigator /> : <OwnerNavigator />}
+  //   </NavigationContainer>
+  // );
 };

@@ -8,38 +8,37 @@ const categories = [
   { 
     id: 'cafe', 
     name: 'Cafe', 
-    image: require('../../../../attached_assets/stock_images/coffee_cup_on_table__abd66cb7.jpg'),
-    position: { top: 50, left: '42%' },
-    hasGlow: true
+    image: require('../../../../attached_assets/Group 160_1761523631030.png'),
+    position: { top: 50, left: '42%' }
   },
   { 
     id: 'morocco', 
     name: 'Morocco Way', 
-    image: require('../../../../attached_assets/stock_images/moroccan_food_tagine_0769b13f.jpg'),
+    image: require('../../../../attached_assets/Group 165_1761523631033.png'),
     position: { top: 180, left: '12%' }
   },
   { 
     id: 'fine-dining', 
     name: 'Fine Dining', 
-    image: require('../../../../attached_assets/stock_images/fine_dining_restaura_e3e81472.jpg'),
+    image: require('../../../../attached_assets/Group 161_1761523631031.png'),
     position: { top: 180, right: '12%' }
   },
   { 
     id: 'dance', 
     name: 'Dance', 
-    image: require('../../../../attached_assets/stock_images/dancing_nightclub_pe_6f2cc80d.jpg'),
+    image: require('../../../../attached_assets/Group 164_1761523631032.png'),
     position: { bottom: 180, left: '12%' }
   },
   { 
     id: 'lounge', 
     name: 'Loung & Pub', 
-    image: require('../../../../attached_assets/stock_images/pub_bar_interior_bot_d7aafd62.jpg'),
+    image: require('../../../../attached_assets/Group 162_1761523631031.png'),
     position: { bottom: 60, right: '12%' }
   },
   { 
     id: 'chiringuito', 
     name: 'Chiringuito', 
-    image: require('../../../../attached_assets/stock_images/beach_bar_chiringuit_ca707799.jpg'),
+    image: require('../../../../attached_assets/Group 163_1761523631032.png'),
     position: { bottom: 60, left: '35%' }
   },
 ];
@@ -78,9 +77,10 @@ export const HomeScreen = () => {
         <Text style={styles.title}>Choose Category</Text>
 
         <View style={styles.categoriesContainer}>
-          <LinearGradient
-            colors={['rgba(138, 93, 255, 0.3)', 'rgba(138, 93, 255, 0.1)', 'transparent']}
+          <Image 
+            source={require('../../../../attached_assets/Vector_1761523631033.png')}
             style={styles.bottleDecoration}
+            resizeMode="contain"
           />
           
           {categories.map((category) => (
@@ -96,17 +96,11 @@ export const HomeScreen = () => {
               ]}
               onPress={() => handleCategorySelect(category.id)}
             >
-              <View style={[
-                styles.categoryCircle,
-                category.hasGlow && styles.categoryGlow
-              ]}>
-                <Image 
-                  source={category.image} 
-                  style={styles.categoryImage}
-                  resizeMode="cover"
-                />
-              </View>
-              <Text style={styles.categoryName}>{category.name}</Text>
+              <Image 
+                source={category.image} 
+                style={styles.categoryImage}
+                resizeMode="contain"
+              />
             </TouchableOpacity>
           ))}
         </View>
@@ -198,47 +192,21 @@ const styles = StyleSheet.create({
   },
   bottleDecoration: {
     position: 'absolute',
-    width: 65,
-    height: 320,
-    borderRadius: 32,
-    top: '18%',
+    width: 70,
+    height: 340,
+    top: '16%',
     left: '50%',
-    transform: [{ translateX: -32.5 }],
+    transform: [{ translateX: -35 }],
   },
   categoryItem: {
     alignItems: 'center',
   },
-  categoryCircle: {
-    width: 105,
-    height: 105,
-    borderRadius: 52.5,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: '#fff',
-    overflow: 'hidden',
-  },
-  categoryGlow: {
-    shadowColor: '#8B5DFF',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
-    shadowRadius: 25,
-    elevation: 12,
-  },
   categorySelected: {
-    transform: [{ scale: 1.08 }],
+    transform: [{ scale: 1.05 }],
   },
   categoryImage: {
-    width: '100%',
-    height: '100%',
-  },
-  categoryName: {
-    marginTop: 10,
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#fff',
-    textAlign: 'center',
+    width: 130,
+    height: 130,
   },
   bottomNav: {
     position: 'absolute',
