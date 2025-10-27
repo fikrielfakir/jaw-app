@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Platform, StyleSheet as RNStyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { RootNavigator } from './navigation';
 import { useAuthStore } from '@/store/authStore';
@@ -6,6 +7,10 @@ import { supabase } from '@/lib/supabase';
 import { TamaguiProvider } from './providers/TamaguiProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import '../../global.css';
+
+if (Platform.OS === 'web') {
+  (RNStyleSheet as any).setFlag('darkMode', 'class');
+}
 
 export default function App() {
   const { setUser, setLoading } = useAuthStore();

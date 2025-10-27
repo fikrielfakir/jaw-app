@@ -134,7 +134,7 @@ const config = createTamagui({
   defaultFont: 'body',
   animations,
   shouldAddPrefersColorThemes: false,
-  themeClassNameOnRoot: false,
+  themeClassNameOnRoot: true,
   shorthands,
   fonts: {
     body: interFont,
