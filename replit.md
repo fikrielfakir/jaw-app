@@ -77,6 +77,22 @@ The application requires Supabase environment variables (EXPO_PUBLIC_SUPABASE_UR
 
 # Recent Changes
 
+## October 27, 2025 - HomeScreen Category Images Enhancement
+- **Updated category images** to use new circular restaurant/food photography assets (6 images: cafe, outdoor dining, celebration, bar, lounge, fine dining)
+- **Added purple borders** (#8B5CF6) with 3px solid width to all category images for consistent visual design
+- **Implemented active shadow effect** for selected categories:
+  - Uses dual-wrapper architecture (outer for shadow, inner for circular clipping) for cross-platform compatibility
+  - Shadow properties: shadowColor: #8B5CF6, shadowOpacity: 0.8, shadowRadius: 12, elevation: 12
+  - Works correctly on iOS, Android, and Web platforms
+- **Added continuous rotation animation** to the central bottle decoration using React Native Animated API
+  - 360-degree rotation over 10 seconds
+  - Smooth looping animation using useNativeDriver
+- **Fixed Tamagui dark mode configuration**:
+  - Set themeClassNameOnRoot: true in tamagui.config.ts
+  - Removed problematic StyleSheet.setFlag code that caused runtime errors
+  - Resolved "Cannot manually set color scheme" error
+- Architecture review: PASS - All visual requirements met with cross-platform shadow support
+
 ## October 15, 2025 - Main App Screens Implementation
 - **Built complete post-authentication user experience** with 8 new screens
 - **User Screens (Diner Role)**:
