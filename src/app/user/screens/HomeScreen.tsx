@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, ViewStyle } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, ViewStyle, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SlidersHorizontal, MapPin, Home, Search, Heart, Calendar, User } from 'lucide-react-native';
@@ -9,37 +9,37 @@ const categories = [
     id: 'cafe', 
     name: 'Cafe', 
     image: require('../../../../attached_assets/Group 160_1761523631030.png'),
-    position: { top: 50, left: '42%' }
+    position: { top: 50, left: '50%', marginLeft: -65 }
   },
   { 
     id: 'morocco', 
     name: 'Morocco Way', 
     image: require('../../../../attached_assets/Group 165_1761523631033.png'),
-    position: { top: 180, left: '12%' }
+    position: { top: 170, left: '8%' }
   },
   { 
     id: 'fine-dining', 
     name: 'Fine Dining', 
     image: require('../../../../attached_assets/Group 161_1761523631031.png'),
-    position: { top: 180, right: '12%' }
+    position: { top: 170, right: '8%' }
   },
   { 
     id: 'dance', 
     name: 'Dance', 
     image: require('../../../../attached_assets/Group 164_1761523631032.png'),
-    position: { bottom: 180, left: '12%' }
+    position: { bottom: 140, left: '8%' }
   },
   { 
     id: 'lounge', 
     name: 'Loung & Pub', 
     image: require('../../../../attached_assets/Group 162_1761523631031.png'),
-    position: { bottom: 60, right: '12%' }
+    position: { bottom: 20, right: '8%' }
   },
   { 
     id: 'chiringuito', 
     name: 'Chiringuito', 
     image: require('../../../../attached_assets/Group 163_1761523631032.png'),
-    position: { bottom: 60, left: '35%' }
+    position: { bottom: 20, left: '50%', marginLeft: -65 }
   },
 ];
 
@@ -54,14 +54,17 @@ export const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar hidden={true} />
       <LinearGradient
-        colors={['#4A3168', '#3D2854', '#2D1F40']}
+        colors={['#3D2854', '#4A3168', '#5A3A7C']}
         style={styles.gradient}
       >
+        {/* Logo */}
         <View style={styles.header}>
           <Text style={styles.logo}>שבת</Text>
         </View>
 
+        {/* Filter Bar */}
         <View style={styles.filterBar}>
           <TouchableOpacity style={styles.filterButton}>
             <SlidersHorizontal size={18} color="#fff" />
@@ -74,8 +77,10 @@ export const HomeScreen = () => {
           </TouchableOpacity>
         </View>
 
+        {/* Title */}
         <Text style={styles.title}>Choose Category</Text>
 
+        {/* Categories Container */}
         <View style={styles.categoriesContainer}>
           <Image 
             source={require('../../../../attached_assets/Vector_1761523631033.png')}
@@ -103,24 +108,6 @@ export const HomeScreen = () => {
               />
             </TouchableOpacity>
           ))}
-        </View>
-
-        <View style={styles.bottomNav}>
-          <TouchableOpacity style={styles.navItem}>
-            <Home size={24} color="#fff" fill="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem}>
-            <Search size={24} color="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem}>
-            <Heart size={24} color="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem}>
-            <Calendar size={24} color="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem}>
-            <User size={24} color="#fff" />
-          </TouchableOpacity>
         </View>
       </LinearGradient>
     </View>
@@ -150,7 +137,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    marginBottom: 25,
+    marginBottom: 30,
     alignItems: 'center',
   },
   filterButton: {
@@ -182,21 +169,21 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
-    marginBottom: 35,
+    marginBottom: 40,
   },
   categoriesContainer: {
     flex: 1,
     position: 'relative',
     marginHorizontal: 20,
-    marginBottom: 80,
+    marginBottom: 20,
   },
   bottleDecoration: {
     position: 'absolute',
     width: 70,
-    height: 340,
-    top: '16%',
+    height: 360,
+    top: '14%',
     left: '50%',
-    transform: [{ translateX: -35 }],
+    marginLeft: -35,
   },
   categoryItem: {
     alignItems: 'center',
@@ -207,22 +194,5 @@ const styles = StyleSheet.create({
   categoryImage: {
     width: 130,
     height: 130,
-  },
-  bottomNav: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingVertical: 15,
-    paddingBottom: 25,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  navItem: {
-    padding: 8,
   },
 });

@@ -52,14 +52,22 @@ export const UserNavigator = () => {
     <Tab.Navigator
       screenOptions={{
         tabBarActiveTintColor: '#8B5DFF',
-        tabBarInactiveTintColor: '#666',
+        tabBarInactiveTintColor: '#fff',
         tabBarStyle: {
-          backgroundColor: '#0a0a0f',
-          borderTopColor: '#1a1a2e',
-          borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
+          backgroundColor: '#000',
+          borderTopColor: 'transparent',
+          borderTopWidth: 0,
+          height: 70,
+          paddingBottom: 20,
+          paddingTop: 10,
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          position: 'absolute',
+        },
+        tabBarShowLabel: true,
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '500',
         },
         headerShown: false,
       }}
